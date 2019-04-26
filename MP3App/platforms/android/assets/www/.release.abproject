@@ -1,0 +1,17 @@
+{
+  "CorePlugins": [
+    "com.telerik.LivePatch",
+    "cordova-plugin-camera",
+    "cordova-plugin-whitelist",
+    "com.phonegap.plugins.barcodescanner@2.0.0",
+    "com.telerik.plugin.telerikanalytics@3.4.1",
+    "cordova-plugin-crosswalk-webview@2.2.0"
+  ],
+  "CordovaPluginVariables": {
+    "com.telerik.plugin.telerikanalytics": {
+      "AUTO_TRACK_EXCEPTIONS": "True",
+      "AUTO_TRACK_KENDO_EVENTS": "True",
+      "PRODUCT_ID": "282e6e4c9fe7460692089f97128c9482"
+    }
+  }
+}

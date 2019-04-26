@@ -1,0 +1,719 @@
+<div data-role="view" data-title="Transfer From Inspection" data-layout="main-nonav" data-model="app.formTransferFromInspectionUpd" data-show="onShowTFIUpd" data-after-show="afterShowTFIUpd">
+    <div id="formTransferFromInspectionUpdModel" class="form-view">
+        <form>
+            <div id="example">
+                <div id="grid3"></div>          
+            </div> 
+            <!--<ul class="form-content" data-role="listview" data-style="inset">
+                <li>
+                    <label>To Warehouse
+                        <input data-bind="value: formTransferFromInspectionUpdModel.fields.tfiUpdToWarhouse" placeholder="To Warehouse" type="text">
+                    </label>
+                </li>
+                <li>
+                    <label>To Location
+                        <input data-bind="value: formTransferFromInspectionUpdModel.fields.tfiUpdToLocation" placeholder="To Location" type="text">
+                    </label>
+                </li>
+                <li>
+                    <label>Sub Storage
+                        <input data-bind="value: formTransferFromInspectionUpdModel.fields.tfiUpdSubStorage" placeholder="Sub Storage" type="text">
+                    </label>
+                </li>
+                <li>
+                    <label>Quantity
+                        <input data-bind="value: formTransferFromInspectionUpdModel.fields.tfiUpdQuantity" placeholder="Quantity" type="text">
+                    </label>
+                </li>
+            </ul>-->
+            <hr>
+            <div class="button-group button-group-vertical">  
+                <a class="primary" data-role="button" href="components/formTransferFromInspection/view.html" data-click="DestroyTFIGrid" data-icon="cross">Cancel</a>
+            </div>
+        </form>
+        <!-- START_CUSTOM_CODE_formTransferFromInspectionUpdModel -->        
+        
+        <script id="popup_editor" type="text/x-kendo-template">            
+            <p> 
+                <div>
+                    <div class="left">
+                        <label for="ItemCode" name="ItemCodeLabel">Item Code:</label>
+                    </div>
+                    <div class="right">
+                        <input id="ItemCode" name="ItemCode" class="k-input k-textbox" readonly/>
+                    </div>
+                </div>
+            </p>            
+            <p>
+                <div>
+                    <div class="left">            
+                    	<label for="WarehouseCode" name="WarehouseCodeLabel">Insp Whs Code:</label>
+                    </div>
+                    <div class="right">
+            			<input id="WarehouseCode" name="WarehouseCode" class="k-input k-textbox" readonly/>
+                    </div>
+                </div>
+            </p>
+
+            <p>
+                <div>
+                    <div class="left">              
+            			<label for="Storage" id="StorageLabel" name="StorageLabel">Storage:</label>
+                    </div>
+                    <div class="right">                         
+            			<input id="Storage" name="Storage" class="k-input k-textbox" readonly/>
+                    </div>
+                </div>                        
+            </p>
+
+            <p>
+                <div>
+                    <div class="left">               
+            			<label for="Substorage" id="SubstorageLabel" name="SubstorageLabel">SubStorage:</label>
+                    </div>
+                    <div class="right">                         
+            			<input id="Substorage" name="Substorage" class="k-input k-textbox"readonly/>
+                    </div>
+                </div>                         
+            </p>
+
+            <p>
+                <div>
+                    <div class="left">              
+            			<label for="Identifier" id="IdentifierLabel" name="IdentifierLabel">Identifier:</label>
+                    </div>
+                    <div class="right">                          
+            			<input id="Identifier" name="Identifier" class="k-input k-textbox" readonly/>
+                    </div>
+                </div>                         
+            </p>            
+            <p>
+                <div>
+                    <div class="left">              
+            			<label for="SubIdentifier" id="SubIdentifierLabel" name="SubIdentifierLabel">SubIdentifier:</label>
+                    </div>
+                    <div class="right">                          
+            			<input id="SubIdentifier" name="SubIdentifier" class="k-input k-textbox" readonly/>
+                    </div>
+                </div>                         
+            </p>
+            <p>
+                <div>
+                    <div class="left">              
+            			<label for="UserField11" name="UserField11Label">Qty Avail:</label>
+                    </div>
+                    <div class="right">                         
+            			<input id="UserField11" name="UserField11" class="k-input k-textbox" readonly/>
+                    </div>
+                </div>                         
+            </p>
+            <p>
+                <div>
+                    <div class="left">              
+            			 &nbsp; <br><br>
+                    </div>
+                    <div class="right">                         
+            			  &nbsp;<br><br>
+                    </div>
+                </div>                         
+            </p>            
+            <p>
+                <div>
+                    <div class="left">  
+            			<label for="UserField15" name="UserField15Label">To Whs:</label>
+                    </div>
+                    <div class="right">                        
+            			<!--<input id="UserField15" name="UserField15" data-role="dropdownlist" data-value-field = "value"/>-->
+                        <input id="UserField15" name="UserField15" type="text" class="k-input k-textbox"/>
+                    </div>
+                </div>                        
+            </p>            
+            <p>
+                <div>
+                    <div class="left">              
+            			<label for="UserField12" id="UserField12Label" name="UserField12Label">To Storage:</label>
+                    </div>
+                    <div class="right">                         
+            			<input id="UserField12" name="UserField12" class="k-input k-textbox"/>
+                    </div>
+                </div>                         
+            </p>            
+            <p>
+                <div>
+                    <div class="left">              
+            			<label for="UserField13" id="UserField13Label" name="UserField13Label">To SubStorage:</label>
+                    </div>
+                    <div class="right">                         
+            			<input id="UserField13" name="UserField13" class="k-input k-textbox"/>
+                    </div>
+                </div>                         
+            </p>            
+            <p>
+                <div>
+                    <div class="left">             
+            			<label for="UserField14" id="test1label" name="UserField14Label">Qty:</label>
+                    </div>
+                    <div class="right">                           
+            			<input id="UserField14" name="UserField14" class="k-input k-textbox" readonly/>
+                    </div>
+                </div>                         
+            </p>
+            <p>
+                <div>
+                    <div class="left">             
+            			<label for="UserField10" id="UserField10label" name="UserField10Label">no:</label>
+                    </div>
+                    <div class="right">                           
+            			<input id="UserField10" id="UserField10" name="UserField10" class="k-input k-textbox"/>
+                    </div>
+                </div>                         
+            </p>              
+        </script>
+        <style>
+            .left {
+                width: 30%;
+                float: left;
+                text-align: right;
+                vertical-align: middle;
+            }
+            .right {
+                width: 65%;
+                margin-left: 10px;
+                float:left;
+            }
+            .k-grid-edit
+            {
+                background-image: none;
+                background-color: lightgray;
+            }
+            .k-grid-cancel
+            {
+                background-image: none;
+                background-color: lightgray;
+            }            
+        </style>          
+        <script>
+            function onShowTFIUpd() { 
+                //$('#UserField15').val(gcDefaultWhs).change();
+                
+                if (tfifromStorageReq == "no") {
+                    var storagehidden = true;
+                } else {
+                    var storagehidden = false;
+                }
+                
+                if (tfifromSubStorageReq == "no") {
+                     var substoragehidden = true;
+                } else {
+                    var substoragehidden = false;
+                }                
+                
+                if (tfiUseIdentifier == "no") {
+                    var identhidden = true;
+                } else {
+                    var identhidden = false;
+                }                
+ 
+                if (tfiUseSubIdentifier == "no") {
+                    var subidenthidden = true;
+                } else {
+                    var subidenthidden = false;
+                }                 
+                
+                $('html').animate({scrollTop:0}, 1);
+                $('body').animate({scrollTop:0}, 1);
+
+                var cFilter = "WHERE InEntity = " + '"' + gcInEntity + '"' + " AND WarehouseCode = " + '"' + passtfiwarehouse + '"' + " AND ItemCode = " + '"' + 
+                              passtfiitemcode + '"' +  " AND Identifier = " + '"' + passtfipiece + '"' + " AND SubIdentifier = " +
+                              '"' + passtfisubidentifier + '"' + " AND QuantityOnHand > 0";
+                             
+                //Syscom - Spectre                
+                //var serviceURI   = "http://spectre.int.syscom.plc.uk:8980/MoveFromInspectionService",
+                var serviceURI   = server_path + (deploy_method=="deployed" ? deploy_service : "/MoveFromInspectionService"),
+                    catalogURI   = serviceURI + "/static/MoveFromInspectionService.json",            
+                    resourceName = 'MoveFromInspection';                  
+  
+                // create a new instance of the JSDO transport class for 'ItemClassStock'
+                // the class was included as part of the jsdoTransport file 
+                var MoveFromInspection = new JSDOTransport(serviceURI, catalogURI, resourceName,"",cFilter);
+                
+                
+                // fuction for grid details
+                $('#grid3').kendoGrid({
+                    // define transports as the class functions 
+                    autoBind: true,
+                    dataSource: {                 
+                        transport:MoveFromInspection.transport,     
+                        schema: {
+                            model: {
+                                id: '_id',                            
+                                fields: {
+                                    // assign fields to read only in edit mode
+                                    //InEntity: { editable: false},
+                                    ItemCode: { editable: false}, 
+                                    WarehouseCode: { editable: false},
+                                    UserField15: {editable: true},
+                                    Storage: { editable: false},
+                                    UserField12: { editable: true},
+                                    Substorage: { editable: false},
+                                    UserField13: { editable: true},
+                                    Identifier: { editable: false},
+                                    UserField16:{ editable: false},
+                                    SubIdentifier: { editable: false},                                
+                                    UserField11: { editable: false},
+                                    UserField14: { editable: false}
+                                }
+                            },
+                        pageSize: 10,
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true,
+                        },                    
+                        error: function(e) {
+                            var obj, error = "";                    
+                            console.log('Error: ', e);
+                            if (e.xhr && e.xhr.response) {
+                                try {
+                                    obj = JSON.parse(e.xhr.response);
+                                    if (obj._retVal) {
+                                        error = obj._retVal;
+                                    }
+                                    erroraudio.play();
+                                    alert("Error returned from server: " + error);
+                                }
+                                catch(e) {
+                                    erroraudio.play();
+                                    alert("Error returned from server: " + xhr.response);                    
+                                }
+                            }                
+                        },
+                        requestEnd: function(e) {
+                            //alert(e.response.Errors); 
+                            //if (e.type == "read") {
+                            //    var grid = $("#grid3").data("kendoGrid");
+                            //    grid.select("tr:eq(1)");
+                               
+                            //}
+                            
+                            if (e.type == "update") {
+                                window.alert("Record updated successfully.");
+                                $("#grid3").data("kendoGrid").dataSource.read();    
+                            }
+                        } 
+                    },       
+                    
+                    dataBound : function () {
+                       DisplayTFINoResultsFound($('#grid3'));
+                       
+                    },
+                    change: function(e) {
+                        
+                    },
+                    // Grid controls and config
+                    
+                    //height: 680,
+                    //height: 350,
+                    //pageSize: 10,	 
+                    //serverPaging: false,                    
+                    groupable: false,
+                    //sortable: true,
+                    //reorderable: true,
+                    resizable: true,						
+                    selectable: true,
+                    filterable: false,
+                    scrollable: true,
+                    columnMenu: false,
+                    reorderable: true,
+                    pageable: {
+                      refresh: true,
+                      pageSizes: true,
+                      pageSize: 10,	                      
+                      buttonCount: 4
+                   },
+
+                   //noRecords: {
+                   //  template: "No data available to display."  
+                   //},
+                   editable: {
+                       mode: 'popup', 
+                       template: kendo.template($("#popup_editor").html()) 
+                       //template: $("#template").html()
+                   },
+                   edit: function(e) {
+                                      
+                       var model = e.model;
+                       var container = e.container;
+                       
+                       model.dirty = true;
+                       container.dirty = true;
+                       $('#UserField15').val(gcDefaultWhs).change();
+                       $('#UserField10').val(gcUseridStamp).change();
+                       
+                       //var testvar = document.getElementById("UserField15").value;
+                      
+                       //************************$('#UserField15').val(gcDefaultWhs).change();
+                       
+                       
+                       // ************** IMPORTANT **************
+                       //ready for manual ajax call on click of update button
+                       //e.container.find(".k-grid-update").bind("click", function () {
+                           //your code here
+                       //})
+                                                
+                       function getWhsData() {
+
+                            $.ajax({
+                              method: "POST",                               
+                              //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/getwarehouses", 
+                              //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getwarehouses",
+                              url: server_path + service_path + "getinspwarehouses", 
+                              headers: {
+                                "accept": "application/json",
+                                "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                              }, 
+                              data: {
+                                "DefWhs"  : gcDefaultWhs,
+                                "InspWhs" : gcInspWhs
+                              },                         
+                              success: function (result) {
+                                  //window.alert("Success!")
+                              },
+                              async: false,
+                              error: function(data) {
+                                window.alert("Failed to reach server!")
+                              }  
+                            })
+                            .done(function(response) {                                 
+                               
+                               $("#UserField15").kendoDropDownList({
+                                  dataValueField: "id",
+                                  //dataSource: {
+                                  //   data: warehouse  
+                                  //}, 
+                                  //dataSource: ["ELFG", "ELRM"],
+                                  dataSource: response,
+                                  animation: {
+                                   close: {
+                                     effects: "fadeOut zoom:out",
+                                     duration: 300
+                                   },
+                                   open: {
+                                     effects: "fadeIn zoom:in",
+                                     duration: 300
+                                   }
+                                  }
+                             });
+                                
+                             
+
+                          });
+                          //$("#UserField15").data('kendoDropDownList').select(0);
+                          //alert(e.container.find("[name='UserField15']").value);
+                       }                     
+                       
+                       //$('#edited').prop('checked', true);
+                       //$("#edited").attr('checked', true);                   
+                                              
+                       getWhsData();
+                                              
+                       //var SelectedWhs = document.getElementById("UserField15").value;
+                                           
+                       $('#UserField15').change(hideTFIFunction).change();
+                                            
+                       //document.getElementById("UserField15").value = gcDefaultWhs;
+                       
+                       //var dropdownlist = $("#UserField15").data("kendoDropDownList")
+                                                                                                 
+                    },                      
+                   columns: [
+                       { command: "edit", title: " ", width: "100px" },
+                       // { field: 'InEntity',  title: 'InEntity', type: 'int', width: 60, hidden: false },
+                       { field: 'ItemCode',  title: 'Item Code', editable: false, type: 'text', width:140, locked: false, lockable: false },                
+                       { field: 'WarehouseCode',  title: 'Whs', type: 'int', width: 60 },  
+                       //{ field: 'UserField15',  title: 'To Warehouse', type: 'int', width: 60, hidden: false }, 
+                       { field: 'Storage',  title: tfifromStoragePrompt, type: 'int', width: 50, locked: false, lockable: false, hidden: storagehidden },
+                       { field: 'UserField12',  title: "", type: 'int', width: 50, locked: false, lockable: false, hidden: true },
+                       { field: 'Substorage',  title: tfifromSubStoragePrompt, type: 'int', width: 65, locked: false, lockable: false, hidden: substoragehidden },
+                       { field: 'UserField13',  title: 'To S-lctn', type: 'int', width: 65, locked: false, lockable: false, hidden: true },
+                       { field: 'Identifier',  title: tfiUpdIdentLabel, type: 'int', width: 60, hidden: identhidden },
+                       { field: 'SubIdentifier',  title: tfiUpdSubIdentLabel, type: 'int', width: 60, hidden: subidenthidden },
+                       { field: 'UserField11',  title: 'Qty Avail', type: 'string', width: 80 },  
+                       { field: 'UserField14',  title: 'Mv Qty', type: 'string', width: 80, hidden: true }, 
+                       { field: 'UserField10',  title: 'UserField10', type: 'string', width: 80, hidden: true }, 
+                       { title: '&nbsp;', width: '100%' }
+                   ]
+                
+                });
+                
+            } 
+            
+            function afterShowTFIUpd() {
+               
+                resizeTFIGrids();
+            }
+            
+            $(document.body).keydown(function(e) {
+
+               //$('#UserField15').change(testfunction).change();
+
+               $('#UserField12').keydown(function(event) {
+                  if (event.keyCode == 13) {
+                        if (tfitoStorageReq == "yes") {
+                            document.getElementById("UserField13").focus();
+                        } 
+                  }
+                }); 
+               $('#UserField13').keydown(function(event) {
+                  if (event.keyCode == 13) {   
+
+                      // document.getElementById("UserField14").focus();
+                  }
+                });                         
+
+            });
+            
+            /*$(document).ready(function() { 
+                
+               $('#UserField15').change(testfunction).change();                                               
+
+               $('#UserField12').keydown(function(event) {
+                  if (event.keyCode == 13) {
+                        alert("testkeypress");
+                        if (tfiSubStorageReq == "yes") {
+                              document.getElementById("UserField13").focus();
+                        } else {
+                           // document.getElementById("UserField13").focus();
+                        } 
+                  }
+                }); 
+               $('#UserField13').keydown(function(event) {
+                  if (event.keyCode == 13) {   
+                      alert("teskeypress2");
+                       //document.getElementById("UserField14").focus();
+                  }
+                });                         
+
+                                    
+                
+            });*/
+            
+            function DestroyTFIGrid () { 
+                $("#grid3").empty(); // empty the Grid content (inner HTML) 
+                tfiuFirstLoad = "yes";
+            }
+            
+            
+            $(function() {          
+
+                //function to change grid size depending on orientation
+                function resizeGrids() {
+                    var windowHeight = $(window).height();
+                    //var newHeight = (windowHeight * 3) / 2;
+                    var newHeight = (windowHeight - 260);
+                    var resizables = $(".adaptive-grid-wrapper, .adaptive-grid-wrapper > .km-pane-wrapper, .k-grid");                                 
+                                        
+                    resizables.height(newHeight);
+                    
+                    $("#grid3").data("kendoGrid").resize();
+                                                            
+                }                              
+                
+                /*$(window).resize(resizeGrids);
+                
+                resizeGrids(); */              
+                
+                // this function is called after data is returned from the server
+                /*function jsdoTransportRead(options) {
+                    jsdo.subscribe('AfterFill', function callback(jsdo, success, request) {
+                        jsdo.unsubscribe('AfterFill', callback, jsdo);
+                        if (success) {
+                            options.success(jsdo.getData());
+                        }
+                        else {
+                            options.error(request.xhr, request.xhr.status, request.exception);
+                        }
+                    }, jsdo);
+                    jsdo.fill();
+                }*/
+            });
+            
+            function testfunction() {
+                
+                //$("#UserField14").hide();
+                //$("#test1label").hide();
+            }
+            
+            // function for grid search
+            function onSearchPA(q,p)
+            {    
+              //alert("testonSearch");
+                          
+              var grid = $("#grid3").data("kendoGrid");              
+                  grid.dataSource.query({ 
+                    page:1,
+                    pageSize:10,
+                    filter:{
+                      logic:"and",
+                      filters:[                          
+                        {field:"WarehouseCode", operator:"eq", value:p}, 
+                        {field:"ItemCode", operator:"contains",value:q}                          
+                        ]                      
+                     }
+                  });
+                grid.dataSource.read();
+            }
+            
+            // funciton to display message in grid when no records found
+            function DisplayTFINoResultsFound(grid) {
+                // Get the number of Columns in the grid
+                var dataSource = grid.data("kendoGrid").dataSource;
+                var colCount = grid.find('.k-grid-header colgroup > col').length;
+
+                // If there are no results display info to user
+                if (dataSource._view.length == 0) {
+                    kendo.mobile.application.navigate("components/formTransferFromInspection/view.html");
+                    DestroyTFIGrid();
+                    
+                    //grid.find('.k-grid-content tbody')
+                    //    .append('<tr class="kendo-data-row"><td colspan="' + colCount + '" style="text-align:center"><b>No Results Found! Please refine your search.</b></td></tr>');
+                }
+
+                // Get visible row count
+                var rowCount = grid.find('.k-grid-content tbody tr').length;
+
+                // If the row count is less that the page size add in the number of missing rows
+                if (rowCount < dataSource._take) {
+                    var addRows = dataSource._take - rowCount;
+                    for (var i = 0; i < addRows; i++) {
+                        grid.find('.k-grid-content tbody').append('<tr class="kendo-data-row"><td>&nbsp;</td></tr>');
+                    }
+                }
+                
+                
+            }
+            
+           function hideTFIFunction() {
+                //var model = e.model;
+                //var container = e.container;
+                
+                document.getElementById("UserField10").value = gcUseridStamp;
+                
+                $("#UserField10").hide();
+                $("#UserField10label").hide();                
+                
+                var SelectedWhs = document.getElementById("UserField15").value;
+           
+                $.ajax({
+                  method: "POST",                               
+                  //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/getstoragedetails", 
+                  //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getstoragedetails",
+                  url: server_path + service_path + "getstoragedetails",
+                  headers: {
+                    "accept": "application/json",
+                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                  }, 
+                  data: {
+                    "WarehouseCode"  : SelectedWhs
+                  },                         
+                  success: function (result) {
+
+                  },
+                  async: false,
+                  error: function(data) {
+                    window.alert("Failed to reach server!")
+                  }  
+                })
+                .done(function(response) {                                 
+                     tfitoStorageReq	    = (response.StorageDetails[0].StorageRequired);
+                     tfitoSubStorageReq     = (response.StorageDetails[0].SubStorageRequired);  
+                     tfitoStoragePrompt     = (response.StorageDetails[0].StorageLabel);
+                     tfitoSubStoragePrompt  = (response.StorageDetails[0].SubStorageLabel); 
+                                 
+                    if (tfifromStorageReq == "no") {
+                        $("#Storage").hide();
+                        $("#StorageLabel").hide();
+                    } else {
+                        $("#Storage").show();
+                        $("#StorageLabel").show();
+                        $('#StorageLabel').text(tfifromStoragePrompt);       
+                    }
+                   if (tfifromSubStorageReq == "no") {
+                        $("#Substorage").hide();
+                        $("#SubstorageLabel").hide();
+                    } else {
+                        $("#Substorage").show();
+                        $("#SubstorageLabel").show();                     
+                        $('#SubstorageLabel').text(tfifromSubStoragePrompt); 
+
+                        //apply focus to userfield12
+                        document.getElementById("UserField12").focus();
+                    }                       
+                    
+                    if (tfitoStorageReq == "no") {
+                        $("#UserField12").hide();
+                        $("#UserField12Label").hide();
+                    } else {
+                        $("#UserField12").show();
+                        $("#UserField12Label").show();                       
+                        $('#UserField12Label').text("To " + tfitoStoragePrompt);
+                        
+                        //apply focus to userfield12
+                        document.getElementById("UserField12").focus(); 
+                    }
+                   if (tfitoSubStorageReq == "no") {
+                        $("#UserField13").hide();
+                        $("#UserField13Label").hide();
+                    } else {
+                        $("#UserField13").show();
+                        $("#UserField13Label").show();  
+                        
+                        $('#UserField13Label').text("To " + tfitoSubStoragePrompt);
+                    }  
+                    //sort out display of ident subident 
+                    if (tfiUseIdentifier == "no") {
+                        $("#Identifier").hide();
+                        $("#IdentifierLabel").hide();
+                    } else {
+                        $("#Identifier").show();
+                        $("#IdentifierLabel").show();
+                        $('#IdentifierLabel').text(tfiUpdIdentLabel);
+                    }                
+
+                    if (tfiUseSubIdentifier == "no") {
+                        $("#SubIdentifier").hide();
+                        $("#SubIdentifierLabel").hide();
+                    } else {
+                        $("#SubIdentifier").show();
+                        $("#SubIdentifierLabel").show();
+                        $('#SubIdentifierLabel').text(tfiUpdSubIdentLabel);
+                        
+                    }   
+                });                           
+           }  
+            
+           //function to change grid size depending on orientation
+           function resizeTFIGrids() {
+               var windowHeight = $(window).height();
+               var newHeight = (windowHeight - $("p").first().outerHeight() * 3) / 1.6;
+               var resizables = $(".adaptive-grid-wrapper, .adaptive-grid-wrapper > .km-pane-wrapper, .k-grid");                                 
+
+               resizables.height(newHeight);
+
+               $("#grid3").data("kendoGrid").resize();
+
+           }
+             
+           $(window).on("orientationchange",function(){
+                
+               resizeTFIGrids();
+                
+            });  
+                        
+        </script>
+       
+        
+        <!-- END_CUSTOM_CODE_formTransferFromInspectionUpdModel -->
+    </div>
+    <!-- START_CUSTOM_CODE_formTransferFromInspectionUpd -->
+    <!-- END_CUSTOM_CODE_formTransferFromInspectionUpd -->
+</div>

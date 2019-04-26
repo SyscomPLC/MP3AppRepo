@@ -1,0 +1,318 @@
+<div data-role="view" data-title="Scan Through Operations" data-layout="main-nonav" data-model="app.formScanOperations" data-show="onShowScan" data-after-show="afterShowScan">
+    <div id="formScanOperationsModel" class="form-view">        
+        <form>
+            <ul class="form-content" data-role="listview" data-style="inset">
+                <li>
+                    <label>Work order
+                         <input id="scWorkOrder" class="kendodrop" placeholder="Work Order" type="text">
+                    </label>
+                </li>
+                <div id="example">
+                    <div id="gridWo"></div>          
+                </div>                
+                <li>
+                    <label id="scOperationLabel">Operation
+                         <input id="scOperation" class="kendodrop" placeholder="Operation" type="text">
+                    </label>
+                </li>         
+                <div id="example">
+                    <div id="gridOp"></div>          
+                </div>                                
+            </ul>
+            <hr>
+            <div class="button-group button-group-vertical">                   
+                <!--a data-role="button" href="components/formPutAwayUpd/view.html" id="confirmbutton" data-icon="search" data-click="ClickConfirmPA">Confirm</a -->
+                <a class="regular" data-role="button" data-click="CompleteOp" id="CompleteOp" >Complete Operation</a>
+                <a class="regular" data-role="button" id="next" data-click="NextPage" >Next</a>
+                <a class="primary" data-role="button" id="cancel" data-click="ClearFieldValuesForWorkorder" data-icon="cross">Cancel</a>
+                <a class="primary" data-role="button" id="exit" data-click="Exit" href="components/formMenu/view.html" data-icon="cross">Exit</a>
+            </div>            
+        </form>
+        <!-- START_CUSTOM_CODE_formScanOperationsModel -->
+        <script>
+            function onShowScan() {   
+                $("#scOperation").hide();
+                $("#scOperationLabel").hide();
+                $("#CompleteOp").hide();    
+                $("#cancel").hide();               
+            }
+  
+           function afterShowScan()  {
+               document.getElementById("scWorkOrder").focus(); 
+            }     
+
+            $(document).ready(function() {                   
+                gcOperationData = "";
+                gcNextButton = "WorkOrder";
+                $('#scWorkOrder').keydown(function(event) {
+                    if (event.keyCode == 13) {
+                           WorkOrderEnter();     
+                    }
+                });   
+                $('#scOperation').keydown(function(event) {
+                    if (event.keyCode == 13) {
+                           OperationEnter();     
+                    }
+                });                                                                                
+            });        
+
+            function WorkOrderEnter() {
+                $("#gridWo").empty();
+                $("#gridOp").empty();
+                $.ajax({
+                  method: "POST",                               
+                  //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/getallwarehouses", 
+                  //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getallwarehouses",
+                  url: server_path + service_path + "WoValidation",
+                  headers: {
+                    "accept": "application/json",
+                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                  }, 
+                  data: {
+                    "EntityWip"  : gcEntityWip,
+                    "WoNumber"   : document.getElementById("scWorkOrder").value
+                  },                         
+                  success: function (result) {
+                  },
+                  async: false,
+                  error: function(data) {
+                    window.alert("Failed to reach server!")
+                  }  
+                })
+                .done(function(response) {                                
+
+                    var pcError = (response.WoValidation[0].ErrorMsg);
+
+                    if(pcError != "") {
+                        //erroraudio.play();
+                        window.alert(pcError);   
+                        document.getElementById("scWorkOrder").value = "";    
+                        document.getElementById("scWorkOrder").focus();                 
+                    }
+                    else {
+
+                        gcWorkOrder 	=  (response.WoValidation[0].WoNumber);
+                        gcItemCode 	    =  (response.WoValidation[0].ItemCode);
+                        gcUomCode 	    =  (response.WoValidation[0].UomCode);
+                        gcWoDescription =  (response.WoValidation[0].WoDescription);
+
+                        $("#scOperation").show();
+                        $("#scOperationLabel").show();  
+                        $("#cancel").show();
+                        $("#exit").hide();
+                        document.getElementById("scWorkOrder").readOnly = true;
+
+                        document.getElementById("scOperation").focus(); 
+
+                        gcNextButton = "Operation";
+
+                        //display the work order table and get the widths correct
+
+                        $("#gridWo").kendoGrid({            
+                                        //groupable: false,
+                                        resizable: true,						
+                                        selectable: true,
+                                        filterable: false,
+                                        scrollable: true,
+                                        columns: [
+                                            { field: "WO", title: "WO", type: 'int', width: 70 },
+                                            { field: "Description", title: 'Description', type: 'int', width: 95},
+                                            { field: "Qty", title: 'Qty' + '(' + gcUomCode + ')',  width: 60}, 
+                                            { field: "CurrentOp", title: 'Op', editable: false, type: 'int', width:40 }
+                                        ]
+                        });
+
+                        var dataWo = [{
+                        WO: (response.WoValidation[0].WoNumber),
+                        //ItemCode: (response.WoValidation[0].ItemCode),
+                        Description: (response.WoValidation[0].WoDescription),
+                        Qty: (response.WoValidation[0].QuantityComplScheduled),
+                        CurrentOp: (response.WoValidation[0].OpSeq)
+                        
+                        },
+                        ];
+
+                        var dataSource = new kendo.data.DataSource({
+                            data: dataWo
+                        });
+
+                        var grid = $("#gridWo").data("kendoGrid");
+                        grid.setDataSource(dataSource);
+
+                    }
+
+                });                                 
+            }       
+
+            function OperationEnter() {
+                $("#gridOp").empty();
+                $.ajax({
+                  method: "POST",                               
+                  //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/getallwarehouses", 
+                  //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getallwarehouses",
+                  url: server_path + service_path + "WoOpValidation",
+                  headers: {
+                    "accept": "application/json",
+                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                  }, 
+                  data: {
+                    "EntityWip"  : gcEntityWip,
+                    "WoNumber"   : document.getElementById("scWorkOrder").value,
+                    "OpSeq"      : document.getElementById("scOperation").value
+                  },                         
+                  success: function (result) {
+                  },
+                  async: false,
+                  error: function(data) {
+                    window.alert("Failed to reach server!");
+                    document.getElementById("scOperation").focus(); 
+                    setTimeout(function(){
+                    document.getElementById("scOperation").focus();
+                    }, 500);                    
+                  }  
+                })
+                .done(function(response) {     
+                    gcOperationData = response;                           
+                    var pcError = (response.WoValidation[0].ErrorMsg);
+
+                    if(pcError != "") {
+                        //erroraudio.play();
+                        window.alert(pcError); 
+                        document.getElementById("scOperation").value = "";  
+                        document.getElementById("scOperation").focus();                     
+                    }
+                    else {
+                        //rename these variables
+                        gcOpeSeq 	    =  (response.WoValidation[0].OpSeq);
+                        gcQtyProcess    =  (response.WoValidation[0].QtyProcess);
+                        gcUomCode 	    =  (response.WoValidation[0].UomCode);
+                        gcWoDescription =  (response.WoValidation[0].OpDescription);
+                        /*gcWoDescription =  (response.WoValidation[0].QtyProcess);*/
+
+                        //display the operation table
+                        $("#CompleteOp").show();    
+                        $("#next").hide();
+                        document.getElementById("scOperation").readOnly = true;
+
+                        $("#gridOp").kendoGrid({            
+                                        groupable: false,
+                                        resizable: true,						
+                                        selectable: true,
+                                        filterable: false,
+                                        scrollable: true,
+                                        columnMenu: false,
+                                        reorderable: false,
+                                        columns: [
+                                            { field: "OpSeq", title: "Op Seq", type: 'int', width: 90, locked: false, lockable: false},
+                                            { field: "Description", title: 'Description', type: 'int', width: 50},
+                                            { field: "OpCode", title: 'Op Code', type: 'int', width: 50},                                             
+                                            { field: "Qty", title: 'Qty ' + '(' + gcUomCode + ')', width: 50}                 
+                                        ]
+                        });
+
+                        var dataOp = [{
+                        OpSeq: (response.WoValidation[0].OpSeq),
+                        WorkCentre: (response.WoValidation[0].WorkCentre),
+                        OpCode: (response.WoValidation[0].OpCode),
+                        Description: (response.WoValidation[0].OpDescription),
+                        Qty: (response.WoValidation[0].QtyProcess)
+                        
+                        },
+                        ];
+
+                        var dataSource = new kendo.data.DataSource({
+                            data: dataOp
+                        });
+
+                        var grid = $("#gridOp").data("kendoGrid");
+                        grid.setDataSource(dataSource); 
+                    }
+                  
+                });                               
+            }         
+
+            function NextPage(){
+                if(gcNextButton == "WorkOrder") {    
+                    WorkOrderEnter();
+                }
+                else if(gcNextButton == "Operation") {    
+                    OperationEnter();
+                }                
+            }   
+
+            function CompleteOp() {
+                $.ajax({
+                  method: "POST",                               
+                  //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/getallwarehouses", 
+                  //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getallwarehouses",
+                  url: server_path + service_path + "MoveOps",                  
+                  headers: {
+                    "accept": "application/json",
+                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                  }, 
+                  data: {
+                    "EntityWip"  : gcEntityWip,
+                    "WoNumber"   : document.getElementById("scWorkOrder").value,
+                    "OPSeq"      : (gcOperationData.WoValidation[0].OpSeq),
+                    "OpCode"     : (gcOperationData.WoValidation[0].OpCode),
+                    "ProcessQty" : (gcOperationData.WoValidation[0].QtyOpBeforeUom), 
+                    "UserId"     : gcUseridStamp
+
+                  },                         
+                  success: function (result) {
+                  },
+                  async: false,
+                  error: function(data) {
+                    window.alert("Failed to reach server!");          
+                    
+                  }  
+                })
+                .done(function(response) {                                
+                
+                    var pcError = (response.WoValidation[0].ErrorMsg);
+
+                    if(pcError != "") {
+                        //erroraudio.play();
+                        window.alert(pcError);   
+                        $("#gridOp").empty();
+                        document.getElementById("scOperation").value = "";                     
+                    }
+                    else {
+                        window.alert("Update Successful");
+                        document.getElementById("scWorkOrder").value = ""; 
+                        document.getElementById("scOperation").readOnly = false;
+                        document.getElementById("scWorkOrder").focus();      
+                        gcOperationData = "";
+                        ClearFieldValuesForWorkorder();                     
+                    }
+
+                });  
+            }
+
+            function ClearFieldValuesForWorkorder() {
+                $("#gridWo").empty();
+                $("#gridOp").empty();
+                $("#scOperation").hide();
+                $("#scOperationLabel").hide();
+                $("#CompleteOp").hide();    
+                $("#cancel").hide();
+                $("#exit").show();
+                $("#next").show();
+                document.getElementById("scOperation").readOnly = false;
+                document.getElementById("scWorkOrder").readOnly = false;
+                gcNextButton = "WorkOrder";        
+                gcOperationData = "";         
+                document.getElementById("scWorkOrder").value = ""; 
+                document.getElementById("scOperation").value = ""; 
+
+                setTimeout(function(){
+                document.getElementById("scWorkOrder").focus();
+                }, 500);
+                document.getElementById("scWorkOrder").focus();   
+            }
+        </script> 
+        <!-- END_CUSTOM_CODE_formScanOperationsModel -->
+    </div>
+    <!-- START_CUSTOM_CODE_formScanOperations -->
+    <!-- END_CUSTOM_CODE_formScanOperations -->
+</div>

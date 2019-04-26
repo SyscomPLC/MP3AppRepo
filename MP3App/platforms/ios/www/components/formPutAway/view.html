@@ -1,0 +1,396 @@
+<div data-role="view" data-title="Putaway" data-layout="main-nonav" data-model="app.formPutAway" data-show="onShowPA" data-after-show="afterShowPA">
+    <div id="formPutAwayModel" class="form-view">        
+        <form>
+            <ul class="form-content" data-role="listview" data-style="inset">
+                <li>
+                    <label>Warehouse
+                        <!-- input data-bind="value: formPutAwayModel.fields.paWarehouse" id="paWarehouse" placeholder="Warehouse" type="text" readonly -->
+                         <input id="paWarehouse" class="kendodrop" placeholder="Warehouse" type="text">
+                    </label>
+                </li>
+                <li>
+                    <label>Item Code
+                        <input data-bind="value: formPutAwayModel.fields.paItemCode" id="paItemCode" placeholder="Item Code" type="text" >
+                    </label>
+                </li>
+                <li>
+                    <label id="paPieceLabel">Piece</label>
+                        <input data-bind="value: formPutAwayModel.fields.paPiece" id="paPiece"  type="text" >
+                </li>
+                <li>
+                    <label id="paSubidentLabel">Sub Identifier</label>
+                        <input data-bind="value: formPutAwayModel.fields.paSubIdenifier" id="paSubident" type="text" >
+                </li>
+            </ul>
+            <hr>
+            <div class="button-group button-group-vertical">                   
+                <!--a data-role="button" href="components/formPutAwayUpd/view.html" id="confirmbutton" data-icon="search" data-click="ClickConfirmPA">Confirm</a -->
+                <a class="regular" data-role="button" data-click="ClearFieldValues" data-icon="clear">Clear Fields</a>
+                <a class="primary" data-role="button" data-click="ClearFieldValuesForItem" href="components/formMenu/view.html" data-icon="cross">Exit</a>
+                
+            </div>
+        </form>
+        
+        <!-- START_CUSTOM_CODE_formPutAwayModel -->
+        <script>
+            //Active Element Id: <span class="output" id="output-element"></span><br/>
+            
+            //function to execute on show of view (initialize)
+            function onShowPA() { 
+                
+                passpawarehouse                              = gcDefaultWhs;
+                passpaitemcode                               = "";
+                passpapiece                                  = "";
+                passpasubidentifier                          = "";
+                document.getElementById("paWarehouse").value = gcDefaultWhs;
+                document.getElementById("paItemCode").value  = "";
+                document.getElementById("paPiece").value     = "";
+                document.getElementById("paSubident").value  = "";
+                
+                getWhsData(); 
+                requiredStorage(); 
+                $("#paPiece").hide();
+                $("#paPieceLabel").hide();
+                $("#paSubident").hide();
+                $("#paSubidentLabel").hide();
+                pafieldId = "paItemCode";               
+            }
+  
+            function afterShowPA()  {
+                document.getElementById("paItemCode").focus();                
+            }           
+            
+            $(document).ready(function() {                   
+               
+                getWhsData(); 
+                
+               $('#paWarehouse').change(requiredStorage).change();
+                  
+                $('#paItemCode').keydown(function(event) {
+                    if (event.keyCode == 13) {
+                        onEnterPAUpdItemCode()
+                    }
+                });   
+                
+
+                $('#paPiece').keydown(function(event) {
+                    if (event.keyCode == 13) { 
+                       if (paUpdItemClass == "2" || paUpdItemClass == "3" || paUpdItemClass == "5") {
+                           document.getElementById("paSubident").focus();
+                       } else {
+                           clickConfirmPA();
+                       }
+                    }
+                });  
+                
+                $('#paSubident').keydown(function(event) {
+                    if (event.keyCode == 13) {
+                           clickConfirmPA();     
+                    }
+                });
+                                               
+            });   
+            
+            function getWhsData() {
+                
+                $.ajax({
+                  method: "POST",                               
+                  //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/getallwarehouses", 
+                  //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getallwarehouses",
+                  url: server_path + service_path + "getallwarehouses",
+                  headers: {
+                    "accept": "application/json",
+                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                  }, 
+                  data: {
+                    "DefWhs"  : gcDefaultWhs
+                  },                         
+                  success: function (result) {
+                  },
+                  async: false,
+                  error: function(data) {
+                    window.alert("Failed to reach server!")
+                  }  
+                })
+                .done(function(response) {                                
+                    $("#paWarehouse").kendoDropDownList({
+                       dataSource: response,
+                       //filter: "contains", 
+                       height: 200,
+                       animation: {
+                        close: {
+                          effects: "fadeOut zoom:out",
+                          duration: 300
+                        },
+                        open: {
+                          effects: "fadeIn zoom:in",
+                          duration: 300
+                        },                         
+                       },
+                       index: 0
+                       //change: function(e) {
+                       //    requiredStorage();
+                       //}
+                    });
+                });                                 
+            }            
+            
+            function requiredStorage () {
+
+                var SelectedWhs = document.getElementById("paWarehouse").value;
+                ClearFieldValues();
+                passpawarehouse = SelectedWhs;
+                $.ajax({
+                   method: "POST",                               
+                   //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/getstoragedetails", 
+                   //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getstoragedetails",
+                   url: server_path + service_path + "getstoragedetails", 
+                   headers: {
+                     "accept": "application/json",
+                     "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                   }, 
+                   data: {
+                     "WarehouseCode"  : SelectedWhs
+                   },                         
+                   success: function (result) {
+                   },
+                   async: false,
+                   error: function(data) {
+                     window.alert("Failed to reach server!")
+                   }  
+                 })
+                 .done(function(response) {    
+                     //window.alert(response.StorageDetails[0].StorageLabel); 
+                    
+                     paStorageReq	       = (response.StorageDetails[0].StorageRequired);
+                     paSubStorageReq     = (response.StorageDetails[0].SubStorageRequired);  
+                     paStoragePrompt     = (response.StorageDetails[0].StorageLabel);
+                     paSubStoragePrompt  = (response.StorageDetails[0].SubStorageLabel);
+                    
+                });
+            }
+         
+            
+            
+            
+            function ClearFieldValues() {
+
+                
+                document.getElementById("paItemCode").value = "";
+                ClearFieldValuesForItem();
+                                        
+            }               
+            
+            // function to clear all field values
+            function ClearFieldValuesForItem() {
+
+                
+                document.getElementById("paPiece").value = "";
+                document.getElementById("paSubident").value = "";
+                $("#paPiece").hide();
+                $("#paPieceLabel").hide();
+                $("#paSubident").hide();
+                $("#paSubidentLabel").hide(); 
+                document.getElementById("paItemCode").focus();                
+                                        
+            }             
+            
+            function onEnterPAUpdItemCode() {
+              
+                ClearFieldValuesForItem();
+                getItemClassDetails();
+                  
+                if (paUpdValidItem == "yes") {                                      
+                    
+                    if (paUpdItemClass == "1") {
+                    
+                        pcpaIdentifier = "";
+                        pcpaSubIdentifier = "";
+                        paUseIdentifier = "no";
+                        paUseSubIdentifier = "no";
+                        clickConfirmPA();
+                       
+                    } if (paUpdItemClass == "2" || paUpdItemClass == "3" || paUpdItemClass == "5") {
+                                               
+                        $("#paPiece").show();
+                        $("#paPieceLabel").show();
+                        $("#paSubident").show();
+                      	$("#paSubidentLabel").show(); 
+                     
+                        
+                        $('#paPieceLabel').text(paUpdIdentLabel);
+                        $('#paSubidentLabel').text(paUpdSubIdentLabel);
+
+                        paUseIdentifier = "yes";
+                        paUseSubIdentifier = "yes";
+                        document.getElementById("paPiece").focus();
+
+                    } else if (paUpdItemClass == "4") {
+                                             
+                        $("#paPiece").show();
+                        $("#paPieceLabel").show();
+                        
+                        $('#paPieceLabel').text(paUpdIdentLabel);    
+                        paUseIdentifier = "yes";
+                        paUseSubIdentifier = "no";
+
+                        document.getElementById("paPiece").focus();
+
+                    }                    
+                } else {
+                    erroraudio.play();
+                    window.alert(paUpdValidItemMsg);
+                    
+                    document.getElementById("paItemCode").value = "";
+                    
+                    document.getElementById("paItemCode").focus();
+                }
+            }
+            
+            function getItemClassDetails() {
+                             
+                $.ajax({
+                  method: "POST",                               
+                    url: server_path + service_path + "getitemclassdetails", 
+                  //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getitemclassdetails",
+                  headers: {
+                    "accept": "application/json",
+                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                  }, 
+                  data: {
+                    "InEntity" : gcInEntity,
+                    "ItemCode": document.getElementById("paItemCode").value,
+                    "WarehouseCode": document.getElementById("paWarehouse").value  
+                  },                         
+                  success: function (result) {
+                    //  window.alert("Success!")
+                  },
+                  async: false,
+                  error: function(data) {
+                    window.alert("Failed to reach server!")
+                  }  
+                })
+                .done(function(response) {      
+                    
+                    paUpdItemClass     = (response.ItemClassDet[0].ItemClass);
+                    paUpdIdentLabel    = (response.ItemClassDet[0].IdentifierLabel);
+                    paUpdSubIdentLabel = (response.ItemClassDet[0].SubIdentifierLabel);
+                    paUpdValidItem     = (response.ItemClassDet[0].ValidItemCode);
+                    paUpdValidItemMsg  = (response.ItemClassDet[0].ValidItemMsg);
+                    
+                });                 
+            }            
+            
+
+
+
+            
+            function clickConfirmPA() {               
+                passpawarehouse = document.getElementById("paWarehouse").value;
+                passpaitemcode = document.getElementById("paItemCode").value;
+                passpapiece = document.getElementById("paPiece").value;
+                passpasubidentifier = document.getElementById("paSubident").value;
+                
+                //passpapiece = document.getElementById("paPiece").value;
+                kendo.mobile.application.navigate("components/formPutAwayUpd/view.html");
+            }            
+
+
+
+            // function to output field id that has focus
+            function GetFocusFieldId(e) {  
+
+                var outputElement = document.getElementById('output-element');                    
+                var selectedField = document.activeElement;  
+                fieldId = selectedField.id;
+                if (fieldId != "kendoUiMobileApp") {
+                    outputElement.innerHTML = selectedField.id;   
+
+                }
+                else {
+                    outputElement.innerHTML = selectedField.id;                     
+                }                    
+
+            }
+            
+            function onLeavePAItemCode() {                
+                
+                var entreditemcode = document.getElementById("paItemCode").value;
+                
+                if (entreditemcode != "") {
+                    
+                    getPAItemClass();                                      
+                    
+                    if (paItemClass == "1") {
+                        $("#paPiece").hide();
+                		$("#paPieceLabel").hide();
+                		$("#paSubIdentifier").hide();
+                		$("#paSubIdentifierLabel").hide();
+                        
+                        //assign 2 global vars then auto confirm
+                        passpawarehouse = document.getElementById("paWarehouse").value;
+                        passpaitemcode = document.getElementById("paItemCode").value;
+                        passpapiece = "";
+                        passpasubidentifier = "";
+                        
+                        autoClickConfirmPA();                                               
+                        
+                    } else {
+                        if (paItemClass == "4") {
+                            $("#paSubIdentifier").hide();
+                		    $("#paSubIdentifierLabel").hide();                           
+                            
+                        }
+                    }
+                                        
+                } else {
+                    window.alert("You must enter an Item Code!");
+                    document.getElementById("paItemCode").focus();
+                    return false;
+                }
+            }
+            
+            function onLeavePAPiece() {
+                if (paItemClass == "4") {
+                    
+                    passpawarehouse = document.getElementById("paWarehouse").value;
+                    passpaitemcode = document.getElementById("paItemCode").value;
+                    passpapiece = document.getElementById("paPiece").value;
+                    passpasubidentifier = "";
+                   
+                    autoClickConfirmPA();
+                }
+            }
+            
+            function onLeavePASubidentifier() {
+               
+                passpawarehouse = document.getElementById("paWarehouse").value;
+                passpaitemcode = document.getElementById("paItemCode").value;
+                passpapiece = document.getElementById("paPiece").value;
+                passpasubidentifier = document.getElementById("paSubIdentifier").value;  
+                
+                autoClickConfirmPA();
+            }
+
+            // function to populate drop down box (hardcoded)
+            /*$("#pawarehouse").kendoDropDownList({
+              dataSource: [ "Si" ,"ELFG","ELINSP", "DA", "QA"],
+              //dataSource: ["01", "IN"],
+              animation: {
+               close: {
+                 effects: "fadeOut zoom:out",
+                 duration: 300
+               },
+               open: {
+                 effects: "fadeIn zoom:in",
+                 duration: 300
+               }
+              }
+            });*/
+
+        </script> 
+        <!-- END_CUSTOM_CODE_formPutAwayModel -->
+    </div>
+    <!-- START_CUSTOM_CODE_formPutAway -->
+    <!-- END_CUSTOM_CODE_formPutAway -->
+</div>

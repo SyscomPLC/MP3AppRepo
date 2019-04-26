@@ -1,0 +1,900 @@
+<div data-role="view" data-title="Putaway" data-layout="main-nonav" data-model="app.formPutAwayUpd" data-show="onShowPAUpd" data-after-show="afterShowPAUpd">
+    <div id="formPutAwayUpdModel" class="form-view">
+        <form>
+           <div id="example">
+                <div id="grid4"></div>          
+            </div>
+            <!--<ul class="form-content" data-role="listview" data-style="inset">
+                <li>
+                    <label>To Location
+                        <input data-bind="value: formPutAwayUpdModel.fields.paUpdToLocation" placeholder="To Location" type="text">
+                    </label>
+                </li>
+                <li>
+                    <label>Sub Storage
+                        <input data-bind="value: formPutAwayUpdModel.fields.paUpdSubStorage" placeholder="Sub Storage" type="text">
+                    </label>
+                </li>
+                <li>
+                    <label>Put Away
+                        <input data-bind="value: formPutAwayUpdModel.fields.paUpdPutAway" placeholder="Put Away" type="text">
+                    </label>
+                </li>
+                test comment
+            </ul>-->
+            <hr>
+            <div class="button-group button-group-vertical">    
+                <a class="primary" data-role="button" href="components/formPutAway/view.html" data-click="DestroyPAGrid" data-icon="cross">Cancel</a>
+            </div>
+        </form>
+        <!-- START_CUSTOM_CODE_formPutAwayUpdModel -->
+        <script id="popup_editor" type="text/x-kendo-template">
+            
+            <p> 
+                <div id="loading"></div>
+                <div>
+                    <div class="left">
+                        <label for="ItemCode" name="ItemCodeLabel">Item Code:</label>
+                    </div>
+                    <div class="right">
+                        <input id="ItemCode" name="ItemCode" class="k-input k-textbox" readonly/>
+                    </div>
+                </div>
+            </p>            
+            <p>
+                <div>
+                    <div class="left">            
+                    	<label for="WarehouseCode" name="WarehouseCodeLabel">Whs Code:</label>
+                    </div>
+                    <div class="right">
+            			<input id="WarehouseCode" name="WarehouseCode" class="k-input k-textbox" readonly/>
+                    </div>
+                </div>
+            </p>
+            <p>
+                <div>
+                    <div class="left">              
+            			<label for="Storage" id="StorageLabel" name="StorageLabel">Storage:</label>
+                    </div>
+                    <div class="right">                         
+            			<input id="Storage" name="Storage" class="k-input k-textbox" readonly/>
+                    </div>
+                </div>                        
+            </p>
+            <p>
+                <div>
+                    <div class="left">               
+            			<label for="Substorage" id="SubstorageLabel" name="SubstorageLabel">SubStorage:</label>
+                    </div>
+                    <div class="right">                         
+            			<input id="Substorage" name="Substorage" class="k-input k-textbox"readonly/>
+                    </div>
+                </div>                         
+            </p>
+
+            <p>
+                <div>
+                    <div class="left">              
+            			<label for="Identifier" id="IdentifierLabel" name="IdentifierLabel">Identifier:</label>
+                    </div>
+                    <div class="right">                          
+            			<input id="Identifier" name="Identifier" class="k-input k-textbox" readonly/>
+                    </div>
+                </div>                         
+            </p>            
+            <p>
+                <div>
+                    <div class="left">              
+            			<label for="SubIdentifier" id="SubIdentifierLabel" name="SubIdentifierLabel">SubIdentifier:</label>
+                    </div>
+                    <div class="right">                          
+            			<input id="SubIdentifier" name="SubIdentifier" class="k-input k-textbox" readonly/>
+                    </div>
+                </div>                         
+            </p>
+            <p>
+                <div>
+                    <div class="left">              
+            			<label for="UserField11" name="UserField11Label">Qty Avail:</label>
+                    </div>
+                    <div class="right">                         
+            			<input id="UserField11" id="UserField11" name="UserField11" class="k-input k-textbox" readonly/>
+                    </div>
+                </div>                         
+            </p>
+            <p>
+                <div>
+                    <div class="left">              
+            			 &nbsp; <br><br>
+                    </div>
+                    <div class="right">                         
+            			  &nbsp;<br><br>
+                    </div>
+                </div>                         
+            </p>  
+            <p>
+                <div>
+                    <div class="left">              
+            			<label for="UserField12" id="UserField12Label" name="UserField12Label">To Storage:</label>
+                    </div>
+                    <div class="right">                         
+            			<input id="UserField12" id="UserField12" name="UserField12" class="k-input k-textbox"/>
+                    </div>
+                </div>                         
+            </p>            
+            <p>
+                <div>
+                    <div class="left">              
+            			<label for="UserField13" id="UserField13Label" name="UserField13Label">To SubStorage:</label>
+                    </div>
+                    <div class="right">                         
+            			<input id="UserField13" id="UserField13" name="UserField13" class="k-input k-textbox"/>
+                    </div>
+                </div>                         
+            </p>   
+            <p>
+                <div>
+                    <div class="left">             
+            			<label for="InspStatus" id="InspStatusLabel" name="InspStatus">Insp Status:</label>
+                    </div>
+                    <div class="right">                           
+            			<input id="InspStatus" id="InspStatus" name="InspStatus" class="k-input k-textbox" onblur="blurInspStatus()" maxlength="4"/>
+                    </div>
+                </div>                         
+            </p>    
+            <p>
+                <div>
+                    <div class="left">             
+            			<label for="InspDesc" id="InspDescLabel" name="InspDesc">Insp Desc:</label>
+                    </div>
+                    <div class="right">                           
+            			<input id="InspDesc" id="InspDesc" name="InspDesc" class="k-input k-textbox" readonly/>
+                    </div>
+                </div>                         
+            </p>                                 
+            <p>
+                <div>
+                    <div class="left">             
+            			<label for="UserField14" id="test1label" name="UserField14Label">Qty:</label>
+                    </div>
+                    <div class="right">                           
+            			<input id="UserField14" id="UserField14" name="UserField14" class="k-input k-textbox"/>
+                    </div>
+                </div>                         
+            </p>  
+            <p>
+                <div>
+                    <div class="left">             
+            			<label for="UserField10" id="UserField10label" name="UserField10Label">no:</label>
+                    </div>
+                    <div class="right">                           
+            			<input id="UserField10" id="UserField10" name="UserField10" class="k-input k-textbox"/>
+                    </div>
+                </div>                         
+            </p>                               
+        </script>
+        <style>
+            .left {
+                width: 30%;
+                float: left;
+                text-align: right;
+                vertical-align: middle;
+            }
+            .right {
+                width: 65%;
+                margin-left: 10px;
+                float:left;
+            }
+            .k-grid-edit
+            {
+                background-image: none;
+                background-color: lightgray;
+            }
+            .k-grid-cancel
+            {
+                background-image: none;
+                background-color: lightgray;
+            }                   
+        </style>        
+        
+        <script>
+            
+            function onShowPAUpd() {                
+                
+                if (paStorageReq == "no") {
+                    var storagehidden = true;
+                } else {
+                    var storagehidden = false;
+                }
+                
+                if (paSubStorageReq == "no") {
+                     var substoragehidden = true;
+                } else {
+                    var substoragehidden = false;
+                }                
+                
+                if (paUseIdentifier == "no") {
+                    var identhidden = true;
+                } else {
+                    var identhidden = false;
+                }                
+ 
+                if (paUseSubIdentifier == "no") {
+                    var subidenthidden = true;
+                } else {
+                    var subidenthidden = false;
+                }                   
+                
+                var cFilter = "WHERE WarehouseCode = " + '"' + passpawarehouse + '"' + " AND ItemCode = " + '"' +
+                              passpaitemcode + '"' + " AND Identifier = " + '"' + passpapiece + '"' + " AND SubIdentifier = " +
+                              '"' + passpasubidentifier + '"' + " AND QuantityOnHand > 0";
+
+                var serviceURI   = server_path + (deploy_method=="deployed" ? deploy_service : "/MobilePutawayService"),    
+                    catalogURI   = serviceURI + "/static/MobilePutawayService.json",            
+                    resourceName = 'MobilePutaway';
+                    
+                  
+                //var Putaway = new JSDOTransport(serviceURI, catalogURI, resourceName);
+                var Putaway = new JSDOTransport(serviceURI, catalogURI, resourceName,"",cFilter);
+                
+
+                // fuction for grid details
+                $('#grid4').kendoGrid({
+                    // define transports as the class functions 
+                    autoBind: true, 
+                    dataSource: {                 
+                        transport:Putaway.transport,                    
+                        schema: {
+                            model: {
+                                id: '_id',                            
+                                fields: {
+                                    // assign fields to read only in edit mode
+                                    InEntity: { editable: false},
+                                    ItemCode: { editable: false}, 
+                                    WarehouseCode: { editable: false},
+                                    //UserField15: {editable: false},
+                                    Storage: { editable: false},
+                                    UserField12: { editable: true},
+                                    Substorage: { editable: false},
+                                    UserField13: { editable: true},
+                                    Identifier: { editable: false},
+                                    UserField16:{ editable: true},
+                                    SubIdentifier: { editable: false},                                
+                                    UserField11: { editable: false},                                    
+                                    UserField14: { editable: false},
+                                    InspStatus: { editable: true}
+                                }
+                            },
+                        pageSize: 10,
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true,
+                        },                    
+                        error: function (e) {
+                            kendo.ui.progress($("#loading"), false);
+                                                        
+                            var obj, error = "";                    
+                            console.log('Error: ', e);
+                            if (e.xhr && e.xhr.response) {
+                                try {
+                                    obj = JSON.parse(e.xhr.response);
+                                    if (obj._retVal) {
+                                        error = obj._retVal;
+                                    }
+                                    alert("Error returned from server: " + error);
+                                }
+                                catch(e) {
+                                    alert("Error returned from server: " + xhr.response);                    
+                                }
+                            }
+
+                            //remove propagation handler
+
+                            // After error focus
+                            if (error.includes("Quantity")) {
+                                document.getElementById("UserField14").focus();
+                                $('#UserField14').select();
+                            } else {
+                                if (error.includes("Invalid Storage Location")) {                                    
+                                    document.getElementById("UserField12").focus(); 
+                                    $('#UserField12').select();                                   
+                                } else {
+                                    if (error.includes("location")) {
+                                        document.getElementById("UserField13").focus();
+                                        $('#UserField13').select();
+                                    } else {
+                                        if (error.includes("inspection")) {
+                                            document.getElementById("InspStatus").focus();
+                                            $('#InspStatus').select();
+                                        } else {
+                                            document.getElementById("UserField14").focus();
+                                            $('#UserField14').select();
+                                        }
+                                    }
+                                }
+                            }
+                            
+                        },
+                        requestStart: function (e) {
+                            if (e.type == "update") {
+                              
+                                kendo.ui.progress($("#loading"), true);                       
+                                
+                            }
+                        },
+                        requestEnd: function(e) {                                                                                 
+                            if (e.type == "update") {
+                                kendo.ui.progress($("#loading"), false);
+                                
+                                window.alert("Record updated successfully.");
+                                
+                                $("#grid4").data("kendoGrid").dataSource.read();    
+                            }
+                        },
+  
+                    },
+                    //save: function (e) {
+                        //alert("propagation test");
+                    //    e.container.find(".k-grid-update").on("click", function (e) {
+                    //        e.stopPropagation();
+                    //        e.preventDefault();
+                    //    });
+                    //},                    
+                    
+                    dataBound : function () {
+                       DisplayNoResultsFound($('#grid4'));
+                       
+                    },
+                    // Grid controls and config
+                    
+                    //height: 680,
+                    //height: 350,
+                    //pageSize: 10,	 
+                    //serverPaging: false,                    
+                    groupable: false,
+                    //sortable: true,
+                    //reorderable: true,
+                    resizable: true,						
+                    selectable: true,
+                    filterable: false,
+                    scrollable: true,
+                    columnMenu: false,
+                    reorderable: true,
+                    pageable: {
+                      refresh: true,
+                      pageSizes: true,
+                      pageSize: 10,	                      
+                      buttonCount: 4
+                   },
+
+                   //noRecords: {
+                   //  template: "No data available to display."  
+                   //},
+                   editable: {
+                       mode: 'popup', 
+                       template: kendo.template($("#popup_editor").html()) 
+                       //template: $("#template").html()
+                                              
+                   },
+                    edit: function(e) {
+                        var model = e.model;
+                        var container = e.container;
+                       
+                        model.dirty = true;
+                        container.dirty = true;
+
+                        $('#UserField10').val(gcUseridStamp).change();
+
+                        hideFunction();                        
+                        alert(WhsType);                        
+                        if (WhsType == "I") {
+                            //create and populate dropdown list
+                            //alert(document.getElementById("InspStatus").value);
+                            
+                            CreateInspStatusDropDown();
+                            
+                            InspStatus();
+                            
+                            document.getElementById("UserField12").focus();
+                            $('#UserField12').select();
+                               
+                        }                    
+                        
+                    },
+                   columns: [
+                       { command: "edit", title: " ", width: "150px" },
+                       //{ field: 'InEntity',  title: 'InEntity', type: 'int', width: 60, hidden: false },
+                       { field: 'ItemCode',  title: 'Item Code', editable: false, type: 'int', width:140, locked: false, lockable: false },                
+                       { field: 'WarehouseCode',  title: 'Whs', type: 'int', width: 60 },  
+                       //{ field: 'UserField15',  title: 'To Warehouse', type: 'int', width: 60, hidden: true }, 
+                       { field: 'Storage',  title: paStoragePrompt, type: 'int', width: 65, locked: false, lockable: false, hidden: storagehidden },
+                       { field: 'UserField12',  title: 'To ' + paStoragePrompt + ':', type: 'int', width: 65, locked: false, lockable: false, hidden: true },
+                       { field: 'Substorage',  title: paSubStoragePrompt, type: 'int', width: 65, locked: false, lockable: false, hidden: substoragehidden },
+                       { field: 'UserField13',  title: 'To ' + paSubStoragePrompt + ':', type: 'int', width: 65, locked: false, lockable: false, hidden: true },
+                       { field: 'Identifier',  title: paUpdIdentLabel + ":", type: 'int', width: 85, hidden: identhidden },
+                       { field: 'SubIdentifier',  title: paUpdSubIdentLabel + ":", type: 'int', width: 100, hidden: subidenthidden },
+                       { field: 'UserField11',  title: 'Avail To Mv:', type: 'string', width: 80 },  
+                       { field: 'UserField14',  title: 'Mv Qty:', type: 'string', width: 80, hidden: true },
+                       { field: 'UserField10',  title: 'UserId:', type: 'string', value: gcUseridStamp, width: 80, hidden: true },    
+                       { title: '&nbsp;', width: '100%' }
+                   ]
+                
+                });
+                
+            } 
+            
+            function afterShowPAUpd() {
+                resizePAGrids();
+            }
+            
+            $(document.body).keydown(function(e) {                
+               
+               $('#UserField12').keydown(function(event) {
+                  if (event.keyCode == 13) {
+                        if (paSubStorageReq == "no") {
+                            if (WhsType == "I") {                                
+                                //document.getElementById("InspStatus").focus();
+                                //$('#InspStatus').select();
+                                //$("#InspStatus").data("kendoDropDownList").input.focus();
+                                document.getElementById("UserField14").focus();
+                            } else {
+                                document.getElementById("UserField14").focus();
+                            }                              
+                        } else {
+                            document.getElementById("UserField13").focus();
+                        } 
+                  }
+                }); 
+               $('#UserField13').keydown(function(event) {
+                  if (event.keyCode == 13) {  
+                      if (WhsType == "I") {
+                          document.getElementById("InspStatus").focus();
+                          $('#InspStatus').select();
+                      } else {
+                          document.getElementById("UserField14").focus();
+                      }                                                  
+                  }
+                });
+               $('#InspStatus').keydown(function(event) {
+                  if (event.keyCode == 13) {                                
+                       document.getElementById("UserField14").focus();
+                  }
+                });                                         
+
+            });
+            
+            function DestroyPAGrid () {  
+                $("#grid4").empty(); // empty the Grid content (inner HTML)    
+            }
+            
+            
+            $(function() {
+      
+                /*var cFilter = "WHERE WarehouseCode = " + '"' + passpawarehouse + '"' + " AND ItemCode = " + '"' + passpaitemcode + '"';
+                             
+                //Herbert Parkinsons - hp-d-b0101a
+                //var serviceURI   = "http:///HP-D-B0101A.net.JohnLewis.co.uk:8980/HPItemClassStockInfoService",
+                //    catalogURI   = serviceURI + "/static/mobile/HPItemClassStockInfoService.json",            
+                //    resourceName = 'ItemClassStock'; 
+                
+                //Syscom - Spectre                
+                var serviceURI   = "http://spectre.int.syscom.plc.uk:8980/MobilePutawayService",
+                    catalogURI   = serviceURI + "/static/MobilePutawayService.json",            
+                    resourceName = 'MobilePutaway';
+                  
+                //var Putaway = new JSDOTransport(serviceURI, catalogURI, resourceName);
+                var Putaway = new JSDOTransport(serviceURI, catalogURI, resourceName,"",cFilter);
+
+                // fuction for grid details
+                $('#grid4').kendoGrid({
+                    // define transports as the class functions 
+                    autoBind: true,
+                    dataSource: {
+                    //filter: 'WHERE ItemCode = ' +  '"' + passitemcode + '"',                    
+                    transport:Putaway.transport,     
+                    schema: {
+                        model: {
+                            id: '_id',                            
+                            fields: {
+                                // assign fields to read only in edit mode
+                                InEntity: { editable: false},
+                                ItemCode: { editable: false}, 
+                                WarehouseCode: { editable: false},
+                                UserField15: { editable: false},
+                                Storage: { editable: false},
+                                UserField12: { editable: true},
+                                SubStorage: { editable: false},
+                                UserField13: { editable: true},
+                                Identifier: { editable: false},
+                                SubIdentifier: { editable: false},                                
+                                QuantityOnHand: { editable: false},
+                                UserField14: { editable: true}
+                            }
+                        },
+                    pageSize: 10,
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true,
+                    },                    
+                    error: function(e) {
+                        var obj, error = "";                    
+                        console.log('Error: ', e);
+                        if (e.xhr && e.xhr.response) {
+                            try {
+                                obj = JSON.parse(e.xhr.response);
+                                if (obj._retVal) {
+                                    error = obj._retVal;
+                                }
+                                alert("Error returned from server: " + error);
+                            }
+                            catch(e) {
+                                alert("Error returned from server: " + xhr.response);                    
+                            }
+                        }                
+                    }},                                       
+                    dataBound : function () {
+                       DisplayNoResultsFound($('#grid4'));
+                    },                    
+                    // Grid controls and config
+                    
+                    //height: 680,
+                    //height: 350,
+                    //pageSize: 10,	 
+                    //serverPaging: false,                    
+                    groupable: false,
+                    //sortable: true,
+                    //reorderable: true,
+                    resizable: true,						
+                    selectable: true,
+                    filterable: false,
+                    scrollable: true,
+                    columnMenu: false,
+                    reorderable: true,
+                    pageable: {
+                      refresh: true,
+                      pageSizes: true,
+                      pageSize: 10,	                      
+                      buttonCount: 4
+                   },
+
+                   //noRecords: {
+                   //  template: "No data available to display."  
+                   //},
+                   editable: 'popup',
+                   columns: [
+                       { command: "edit", title: " ", width: "150px" },
+                       { field: 'InEntity',  title: 'InEntity', type: 'int', width: 60, hidden: false },
+                       { field: 'ItemCode',  title: 'Item Code', editable: false, type: 'int', width:140, locked: false, lockable: false },                
+                       { field: 'WarehouseCode',  title: 'Whs', type: 'int', width: 60 },  
+                       { field: 'UserField15',  title: 'To Warehouse', type: 'int', width: 60, hidden: false }, 
+                       { field: 'Storage',  title: 'Lctn', type: 'int', width: 50, locked: false, lockable: false },
+                       { field: 'UserField12',  title: 'To Lctn', type: 'int', width: 50, locked: false, lockable: false, hidden: true },
+                       { field: 'SubStorage',  title: 'S-lctn', type: 'int', width: 65, locked: false, lockable: false },
+                       { field: 'UserField13',  title: 'To S-lctn', type: 'int', width: 65, locked: false, lockable: false, hidden: true },
+                       { field: 'Identifier',  title: 'Lot', type: 'int', width: 50 },
+                       { field: 'SubIdentifier',  title: 'Unit Num', type: 'int', width: 85 },
+                       { field: 'QuantityOnHand',  title: 'On Hand', type: 'int', width: 80 },  
+                       { field: 'UserField14',  title: 'Mv Qty', type: 'dec', width: 80, hidden: true },  
+                       { title: '&nbsp;', width: '100%' }
+                   ]
+                
+                });   */
+                
+                //function to change grid size depending on orientation
+                /*function resizeGrids() {
+                    var windowHeight = $(window).height();
+                    //var newHeight = (windowHeight * 3) / 2;
+                    var newHeight = (windowHeight - 260);
+                    var resizables = $(".adaptive-grid-wrapper, .adaptive-grid-wrapper > .km-pane-wrapper, .k-grid");                                 
+                                        
+                    resizables.height(newHeight);
+                    
+                    $("#grid4").data("kendoGrid").resize();
+                    
+                }*/
+                
+                /*$(window).resize(resizeGrids);
+                
+                resizeGrids(); */              
+                
+                // this function is called after data is returned from the server
+                /*function jsdoTransportRead(options) {
+                    jsdo.subscribe('AfterFill', function callback(jsdo, success, request) {
+                        jsdo.unsubscribe('AfterFill', callback, jsdo);
+                        if (success) {
+                            options.success(jsdo.getData());
+                        }
+                        else {
+                            options.error(request.xhr, request.xhr.status, request.exception);
+                        }
+                    }, jsdo);
+                    jsdo.fill();
+                }*/
+            });
+            
+            // function for grid search
+            /*function onSearchPA(q,p)
+            {    
+              //alert("testonSearch");
+                          
+              var grid = $("#grid4").data("kendoGrid");              
+                  grid.dataSource.query({ 
+                    page:1,
+                    pageSize:10,
+                    filter:{
+                      logic:"and",
+                      filters:[                          
+                        {field:"WarehouseCode", operator:"eq", value:p}, 
+                        {field:"ItemCode", operator:"contains",value:q}                          
+                        ]                      
+                     }
+                  });
+                grid.dataSource.read();
+            }*/
+            
+            // funciton to display message in grid when no records found
+            function DisplayNoResultsFound(grid) {
+                // Get the number of Columns in the grid
+                var dataSource = grid.data("kendoGrid").dataSource;
+                var colCount = grid.find('.k-grid-header colgroup > col').length;
+
+                // If there are no results display info to user
+                if (dataSource._view.length == 0) {
+                    grid.find('.k-grid-content tbody')
+                        .append('<tr class="kendo-data-row"><td colspan="' + colCount + '" style="text-align:center"><b>No Results Found! Please refine your search.</b></td></tr>');
+                }
+
+                // Get visible row count
+                var rowCount = grid.find('.k-grid-content tbody tr').length;
+
+                // If the row count is less that the page size add in the number of missing rows
+                if (rowCount < dataSource._take) {
+                    var addRows = dataSource._take - rowCount;
+                    for (var i = 0; i < addRows; i++) {
+                        grid.find('.k-grid-content tbody').append('<tr class="kendo-data-row"><td>&nbsp;</td></tr>');
+                    }
+                }
+            }
+            
+           function hideFunction() {
+                //var model = e.model;
+                //var container = e.container;
+                
+                document.getElementById("UserField10").value = gcUseridStamp;
+                
+                $("#UserField10").hide();
+                $("#UserField10label").hide();
+
+                var SelectedWhs = document.getElementById("WarehouseCode").value;
+                
+                $.ajax({
+                  method: "POST",                               
+                  //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/getstoragedetails", 
+                  //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getstoragedetails",
+                  url: server_path + service_path + "getstoragedetails",
+                  headers: {
+                    "accept": "application/json",
+                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                  }, 
+                  data: {
+                    "WarehouseCode"  : SelectedWhs
+                  },                         
+                  success: function (result) {
+
+                  },
+                  async: false,
+                  error: function(data) {
+                    window.alert("Failed to reach server!")
+                  }  
+                })
+                .done(function(response) {                                 
+                    var StorageReq	  = (response.StorageDetails[0].StorageRequired);
+                    var SubStorageReq = (response.StorageDetails[0].SubStorageRequired);
+                    WhsType           = (response.StorageDetails[0].WarehouseType);  
+                    
+                    if (StorageReq == "no") {
+                        $("#Storage").hide();
+                        $("#StorageLabel").hide();
+                        $("#UserField12").hide();
+                        $("#UserField12Label").hide();
+                        document.getElementById("UserField14").focus();
+                    } else {
+                        $("#Storage").show();
+                        $("#StorageLabel").show();
+                        $("#UserField12").show();
+                        $("#UserField12Label").show();   
+                        $('#UserField12Label').text("To " + paStoragePrompt);
+                        $('#StorageLabel').text(paStoragePrompt);   
+                        document.getElementById("UserField12").focus();
+                    }                    
+                    
+                    if (SubStorageReq == "no") {
+                        $("#Substorage").hide();
+                        $("#SubstorageLabel").hide();
+                        $("#UserField13").hide();
+                        $("#UserField13Label").hide();
+                    } else {
+                        $("#Substorage").show();
+                        $("#SubstorageLabel").show();
+                        $("#UserField13").show();
+                        $("#UserField13Label").show();  
+                        $('#UserField13Label').text("To " + paSubStoragePrompt);
+                        $('#SubstorageLabel').text(paSubStoragePrompt);                           
+                    }
+                    // the ident and subident lables
+                    if (paUpdItemClass == "1") {
+                        
+                        $("#Identifier").hide();
+                        $("#IdentifierLabel").hide();
+                        $("#SubIdentifier").hide();
+                      	$("#SubIdentifierLabel").hide();                     
+                       
+                    } if (paUpdItemClass == "2" || paUpdItemClass == "3" || paUpdItemClass == "5") {
+                                               
+                        $("#Identifier").show();
+                        $("#IdentifierLabel").show();
+                        $("#SubIdentifier").show();
+                      	$("#SubIdentifierLabel").show(); 
+                     
+                        
+                        $('#IdentifierLabel').text(paUpdIdentLabel);
+                        $('#SubIdentifierLabel').text(paUpdSubIdentLabel);
+
+
+                    } else if (paUpdItemClass == "4") {
+                                             
+                        $("#Identifier").show();
+                        $("#IdentifierLabel").show();
+                        
+                        $('#IdentifierLabel').text(paUpdIdentLabel);                                             
+                        $("#SubIdentifier").hide();
+                      	$("#SubIdentifierLabel").hide();  
+
+                    }
+                    //var WhsType = "I";
+                    if (WhsType !== "I") {
+                        $("#InspStatus").hide();
+                      	$("#InspStatusLabel").hide();         
+                        $("#InspDesc").hide();
+                      	$("#InspDescLabel").hide();                                           
+                    }                  
+
+                    
+                });                           
+           }  
+
+           //function to fire on leave of insp status
+           function blurInspStatus() {                
+                InspStatus();
+           } 
+
+           function InspStatus() {
+                
+                if (document.getElementById("InspStatus").value != "") {
+                    ;
+                    $.ajax({
+                    method: "POST",                                                                                                                                                    
+                    url: server_path + service_path + "getinspectiondesc",
+                    headers: {
+                        "accept": "application/json",
+                        "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                    }, 
+                    data: {
+                        "InspStatus"  : document.getElementById("InspStatus").value
+                    },                         
+                    success: function (result) {
+
+                    },
+                    async: false,
+                    error: function(data) {
+                        window.alert("Failed to reach server!")
+                    }  
+                    })
+                    .done(function(response) {                                 
+                        var InspDesc	  = (response.ttInspection[0].Description);
+                        var InspDescError = (response.ttInspection[0].Error);
+                        
+                        if (InspDescError != "") {
+                            
+                            document.getElementById("InspStatus").style.background = "#10c4b2";
+                            //document.getElementById("InspDesc").style.background = "#10c4b2";
+                            document.getElementById("InspDesc").value = "Invalid Insp Status";
+                            document.getElementById("InspDesc").style.color = "red";
+                            //document.getElementById("UserField14").focus(); 
+                            
+                        }else {
+                            
+                            document.getElementById("InspStatus").style.background = "white";
+                            //document.getElementById("InspDesc").style.background = "white";
+                            document.getElementById("InspDesc").value = InspDesc;
+                            document.getElementById("InspDesc").style.color = "gray";
+                            //document.getElementById("UserField14").focus();
+                        }                                                                                     
+                        
+                    }); 
+                } else {
+                    
+                    document.getElementById("InspStatus").style.background = "white";
+                    document.getElementById("InspDesc").style.background = "white";
+                    document.getElementById("InspDesc").style.color = "gray";
+                    document.getElementById("InspDesc").value = "";     
+                    //document.getElementById("UserField14").focus();               
+                }                                 
+                                                                                       
+           }                       
+            
+           //function to change grid size depending on orientation
+           function resizePAGrids() {
+               var windowHeight = $(window).height();
+               var newHeight = (windowHeight - $("p").first().outerHeight() * 3) / 1.6;
+               var resizables = $(".adaptive-grid-wrapper, .adaptive-grid-wrapper > .km-pane-wrapper, .k-grid");                                 
+
+               resizables.height(newHeight);
+
+               $("#grid4").data("kendoGrid").resize();
+
+           }
+             
+            $(window).on("orientationchange",function(){
+                
+                resizePAGrids();
+                
+            });  
+
+            function CreateInspStatusDropDown() {
+              
+                $.ajax({
+                  method: "POST",                               
+                  //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/getallwarehouses", 
+                  //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getwarehouses",
+                  url: server_path + service_path + "getinspectionstatuses",
+                  headers: {
+                    "accept": "application/json",
+                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                  }, 
+                  data: {
+                    "CurrentInspStatus"  : document.getElementById("InspStatus").value
+                  },                         
+                  success: function (result) {
+                  },
+                  async: false,
+                  error: function(data) {
+                    window.alert("Failed to reach server!")
+                  }  
+                })
+                .done(function(response) {                                
+                    $("#InspStatus").kendoDropDownList({
+                       dataSource: response,  
+                       //filter: "contains",                   				       
+				       change: onChange,
+                       height: 200,
+                       headerTemplate: '<div><h4>Inspection Status</h4></div>', 
+                       animation: {
+                        close: {
+                          effects: "fadeOut zoom:out",
+                          duration: 300
+                        },
+                        open: {
+                          effects: "fadeIn zoom:out",
+                          duration: 300
+                        },                         
+                       },
+                       index: 0
+                       //change: function(e) {
+                       //    requiredStorage();
+                       //}
+                    });
+                });                                 
+            }
+
+            function onChange() {
+                InspStatus();
+            }                                      
+
+        </script>
+        
+        <!-- END_CUSTOM_CODE_formPutAwayUpdModel -->
+    </div>
+    <!-- START_CUSTOM_CODE_formPutAwayUpd -->
+    <!-- END_CUSTOM_CODE_formPutAwayUpd -->
+</div>

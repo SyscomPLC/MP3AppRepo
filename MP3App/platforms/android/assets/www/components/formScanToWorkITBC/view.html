@@ -1,0 +1,402 @@
+<div data-role="view" data-title="Scan To Work - Cutter Update" data-layout="main-nonav" data-model="app.formScanToWorkITBC" data-show="onShowSTWCUpd" data-after-show="afterShowSTWCUpd">
+    <div id="formScanToWorkITBCModel" class="form-view">        
+        <form>   
+            
+            <ul class="form-content" data-role="listview" data-style="inset">
+                <li>
+                    <label>Work Order
+                        <input id="itbcWorkOrder" placeholder="Work Order" type="text" readonly>
+                    </label>
+                </li>
+                <li>
+                    <label>Warehouse
+                        <input id="itbcWarehouse" placeholder="Warehouse" type="text" readonly>
+                    </label>
+                </li>
+                <li>
+                    <label>Operation
+                        <input id="itbcOperation" placeholder="Operation" type="text" readonly>
+                    </label>
+                </li>
+                <li>
+                    <label>Description
+                        <input id="itbcDescription" placeholder="Description" type="text" readonly>
+                    </label>
+                </li>
+                <li>
+                    <label>Work Centre
+                        <input id="itbcWorkCentre" placeholder="Work Centre" type="text" readonly>
+                    </label>
+                </li>                
+            </ul>
+            <hr>
+            <div id="example">
+                <div id="grid8"></div>          
+            </div>
+            <hr>
+            <div class="button-group button-group-horizontal"> 
+                <a class="regular" data-role="button" data-icon="up">Up</a>                
+                <a id="stwcQuantity" class="regular" data-role="button" data-click="onClickQtyCutter" data-icon="qty">Quantity</a>
+                <a class="regular" data-role="button" data-icon="down">Down</a>
+            </div>
+            <div class="button-group button-group-vertical">  
+                <a id="STWCUpdExit" class="primary" data-role="button" data-icon="cross">Exit</a>                                  
+            </div>     
+        </form>
+        <style>
+            .k-grid tbody tr{
+            	height: 30px;                
+            }
+        </style>       
+
+        <script>
+
+            function onShowSTWCUpd() {  
+                
+                if (gcIssueStoragePrompt == "") {
+                    var storagehidden = true;
+                } else {
+                    var storagehidden = false;
+                }
+                
+                if (gcIssueSubStoragePrompt == "") {
+                     var substoragehidden = true;
+                } else {
+                    var substoragehidden = false;
+                }   
+
+                //DestroySTWCGrid();
+                
+                $("#stwcQuantity").show();
+                
+                //window.alert("in ITBC");
+                var cFilter = "WHERE EntityWIP = " + '"' + gcEntityWip + '"' + " AND WoNumber = " + '"' + stwcwonumber + '"';
+                
+                //Herbert Parkinsons - MCJS-HPERPAPP1
+                //var serviceURI   = "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/MobilePutawayService",
+                //    catalogURI   = serviceURI + "/static/MobilePutawayService.json",            
+                //    resourceName = 'STWCutter'; 
+              
+                var serviceURI   = server_path + (deploy_method=="deployed" ? deploy_service : "/STWCutterService"),
+                    catalogURI   = serviceURI + "/static/STWCutterService.json",            
+                    resourceName = 'STWCutter';
+               
+                var STWCutter = new JSDOTransport(serviceURI, catalogURI, resourceName,"",cFilter);
+
+                // fuction for grid details
+                $('#grid8').kendoGrid({
+                    
+                    // define transports as the class functions 
+                    autoBind: true,
+                    dataSource: {                 
+                        transport:STWCutter.transport,     
+                        schema: {
+                            model: {
+                                id: '_id' ,                            
+                                fields: {
+                                    // assign fields to read only in edit mode
+                                    //InEntity: { editable: false},                                    
+                                    WoNumber: { editable: false}, 
+                                    WarehouseCode: { editable: false},
+                                    ItemCode: { editable: false}, 
+                                    Identifier: { editable: false },
+                                    SubIdentifier: {editable: false},
+                                    //UserField15: {editable: false},
+                                    cAllocQty: { editable: false},
+                                    //cSchedQty: { editable: false},
+                                    cQuantityOnHand: { editable: false },
+                                    cQuantityAvail: { editable: false },
+                                    //Substorage: { editable: false},
+                                    //UserField13: { editable: true},
+                                    Storage: { editable: false},
+                                    SubStorage:{ editable: false}
+                                    //SubIdentifier: { editable: false},                                
+                                    //UserField11: { editable: false},
+                                    //UserField14: { editable: true}
+                                } 
+                            },
+                        pageSize: 10,
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true, 
+                        },                    
+                        error: function(e) {
+                            
+            
+                        },
+                        requestEnd: function(e) {
+                           // alert(e.response.Errors); 
+                            if (e.type == "read") {  
+                                                               
+                            }
+                            
+                            if (e.type == "update") {
+                                window.alert("Record updated successfully.");
+                                $("#grid8").data("kendoGrid").dataSource.read();    
+                            }
+                        }, 
+                        success: function () {
+                                  
+                        },
+                        gridComplete: function () {
+                                  
+                        },
+                    },       
+                    change: function(e) {
+                        
+                        //if storage and substorage = LOST then disable lost rolls button
+                        
+                        var dataItem = this.dataItem(this.select());
+                        document.getElementById("itbcWorkOrder").value = dataItem.WoNumber;
+                        document.getElementById("itbcWarehouse").value = dataItem.WarehouseCode;
+                        document.getElementById("itbcOperation").value = dataItem.OperationCode;
+                        document.getElementById("itbcDescription").value = dataItem.OperationDesc;
+                        document.getElementById("itbcWorkCentre").value = dataItem.WorkCenter;
+                        
+                        pcTransactionType = "CutterSection";
+                        pcEntityWip = dataItem.EntityWip;
+                        pcReasonCode = dataItem.ReasonCode;
+                        pcWoNumber = dataItem.WoNumber;
+                        pcOperationSequence = dataItem.OperationSequence;
+                        pcInEntity = dataItem.InEntity;
+                        pcItemCode = dataItem.ItemCode;
+                        pcWarehouseCode = dataItem.WarehouseCode;
+                        pcIdentifier = dataItem.Identifier;
+                        pcSubIdentifier = dataItem.SubIdentifier;
+                        pcStorage = dataItem.Storage;
+                        pcSubStorage = dataItem.SubStorage;
+                        pcSchedQty = dataItem.cSchedQty;
+                        pcQtyAlloc = dataItem.cAllocQty;
+            
+                    },
+                    dataBound : function () {                                              
+                       
+                       DisplaySTWCNoResultsFound($('#grid8')); 
+                       
+                       var grid = $("#grid8").data("kendoGrid"); 
+                       grid.select('tr:eq(1)');     
+                        
+ 
+                                                                                                                    
+                    },
+
+                    // Grid controls and config
+                    
+                    //height: 680,
+                    //height: 350,
+                    //pageSize: 10,	 
+                    //serverPaging: false,                    
+                    groupable: false,
+                    //sortable: true,
+                    //reorderable: true,
+                    resizable: true,
+                    selectable: "row",
+                    navigatable: true,                    
+                    filterable: false,
+                    scrollable: true,
+                    columnMenu: false,
+                    reorderable: true,
+                    pageable: {
+                      refresh: true,
+                      pageSizes: true,
+                      pageSize: 10,	                      
+                      buttonCount: 4
+                   },
+
+                   //noRecords: {
+                   //  template: "No data available to display."  
+                   //},
+                   editable: 'popup',
+                   edit: function(e) {                       
+                       
+                       var dataItem = this.dataItem
+                       
+                       dataItem.dirty = true;
+                       dataItem.UserIdStamp = "LostRolls";
+                       
+                   },
+                   columns: [                      
+                       //{ command: "edit", title: "", width: "150px" },                       
+                       //{ field: 'InEntity',  title: 'InEntity', type: 'int', width: 60, hidden: false },                       
+                       { field: 'WoNumber',  title: 'WoNumber', type: 'int', width: 60, hidden: true },
+                       { field: 'WarehouseCode',  title: 'WarehouseCode', type: 'int', width: 60, hidden: true },
+                       { field: 'ItemCode',  title: 'Component', editable: false, type: 'int', width:140},                
+                       { field: 'Identifier',  title: 'Identifier', type: 'int', width: 140 },  
+                       { field: 'SubIdentifier',  title: 'SubIdentifier', type: 'int', width: 110 }, 
+                       //{ field: 'UserField15',  title: 'To Warehouse', type: 'int', width: 60, hidden: true }, 
+                       { field: 'cAllocQty',  title: 'Qty Alloc', type: 'int', width: 80, locked: false, lockable: false},
+                      // { field: 'cSchedQty',  title: 'On Hand', type: 'int', width: 80, locked: false, lockable: false },
+                       { field: 'cQuantityOnHand', title: 'Qty OH', type: 'int', width: 80, locked: false, lockable: false },
+                       { field: 'cQuantityAvail', title: 'Qty Avail', type: 'int', width: 80, locked: false, lockable: false },
+                       //{ field: 'Substorage',  title: 'S-lctn', type: 'int', width: 65, locked: false, lockable: false },
+                       //{ field: 'UserField13',  title: 'To S-lctn', type: 'int', width: 65, locked: false, lockable: false, hidden: true },
+                       { field: 'Storage',  title: gcIssueStoragePrompt, type: 'int', width: 90 , hidden: storagehidden },
+                       { field: 'SubStorage',  title: gcIssueSubStoragePrompt, type: 'int', width: 100 , hidden: substoragehidden },
+                       //{ field: 'UserField11',  title: 'On Avail', type: 'string', width: 80 },  
+                       //{ field: 'UserField14',  title: 'Mv Qty', type: 'string', width: 80, hidden: true }, 
+
+                       { title: '&nbsp;', width: '100%' }
+                   ]
+                
+                }); 
+
+            } 
+            
+            $(document).ready(function() {
+                
+                //$("form").submit(function() { return false; });
+                
+                $('#STWCUpdExit').click(function() {
+                    
+                    DestroySTWCGrid();
+                    kendo.mobile.application.navigate("components/formScanToWorkCutter/view.html");                   
+                });                                                
+            }); 
+            
+            function DestroySTWCGrid () {  
+               
+                $("#grid8").empty(); // empty the Grid content (inner HTML)
+                document.getElementById("itbcWorkOrder").value = "";
+                document.getElementById("itbcWarehouse").value = "";
+                document.getElementById("itbcOperation").value = "";
+                document.getElementById("itbcDescription").value = "";
+                document.getElementById("itbcWorkCentre").value = "";
+                //kendo.mobile.application.navigate("components/formScanToWorkCutter/view.html";
+            }
+            
+            function ExitSTWCFunction () {
+             
+              DestroySTWCGrid();
+              
+              kendo.mobile.application.navigate("components/formScanToWorkCutter/view.html");                
+            }
+            
+
+            
+            function onClickQtyCutter() {
+                DestroySTWCGrid();
+                pcIssueRemainingComp = "yes";
+                kendo.mobile.application.navigate("components/formScanToWorkCutterConQty/view.html");
+                
+            }
+            
+            // funciton to display message in grid when no records found
+            function DisplaySTWCNoResultsFound(grid) {
+           
+                // Get the number of Columns in the grid
+                var dataSource = grid.data("kendoGrid").dataSource;
+                var colCount = grid.find('.k-grid-header colgroup > col').length;
+                 
+                if (pcIssueRemainingComp == "yes") {
+                    // If there are no results display info to user
+                    if (dataSource._view.length == 0) { 
+                            var answer = confirm("Do You Wish to Issue the Remaining Components?")
+                            if (answer) {
+
+                                pcTransactionType = "RemainingComponets";
+                                // ajax request to move to lost roles
+                                $.ajax({
+                                  method: "POST",    
+                                  //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/STWmovetolostrolls", 
+                                  //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/STWmovetolostrolls",
+                                  url: server_path + service_path + "STWmovetolostrolls",
+                                  beforeSend: function() {
+                                      
+                                      time = new Date();
+                                  },
+                                  headers: {
+                                    "accept": "application/json",
+                                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                                  }, 
+                                  data: {
+                                      "TransactionType": pcTransactionType,
+                                      "EntityWip": pcEntityWip,
+                                      "ReasonCode" : pcReasonCode,
+                                      "WoNumber" : pcWoNumber,
+                                      "OperationSequence" : pcOperationSequence,
+                                      "InEntity" : pcInEntity,
+                                      "ItemCode" : pcItemCode,
+                                      "WarehouseCode" : pcWarehouseCode,
+                                      "Identifier" : pcIdentifier,
+                                      "SubIdentifier" : pcSubIdentifier,
+                                      "OldStorage" : pcStorage,
+                                      "NewStorage" : "",
+                                      "OldSubStorage" : pcSubStorage,
+                                      "NewSubStorage" : "",
+                                      "SchedQty" : pcSchedQty,
+                                      "QtyAlloc" : pcQtyAlloc,
+                                      "AllocIdentifier" : "",
+                                      "AllocSubIdentifier" : "",
+                                      "UserId" : gcUseridStamp,
+                                      "UserPassword" : ""                                 
+                                  },                         
+                                  success: function (response) {                          
+                                       //alert(new Date() - time + "ms");                                                     
+                                      }, 
+                                      async: false,
+                                      //timeout: 1000,
+                                      error: function(request, error) {
+
+                                        if (error == "timeout") {                                
+                                            $.ajax(this);
+                                        } else {
+                                            window.alert("Failed to reach server!")    
+                                        }
+
+                                      }  
+                                })
+                                .done(function(response) {            
+
+                                    stwpErrorMsg = (response.ValidationResponse[0].pcError);
+                                    //alert(stwpErrorMsg);
+                                    //$("#grid6").data("kendoGrid").dataSource.read();
+                                    //kendo.mobile.application.navigate("components/formScanToWorkCutter/view.html");
+                                    afterCall();
+
+                                });              
+                            }
+                            else {
+								 //kendo.mobile.application.navigate("components/formScanToWorkCutter/view.html");
+                            }
+
+                        /*  */                    
+                        $("#stwcQuantity").hide();
+                        
+                        grid.find('.k-grid-content tbody')
+                            .append('<tr class="kendo-data-row"><td colspan="' + colCount + '" style="text-align:center"><b>No remaining allocations to display for this work order.</b></td></tr>'); 
+                     //   window.alert("All components have been issued for this work order");
+                      //   kendo.mobile.application.navigate("components/formScanToWorkCutter/view.html");
+                    }                    
+                }
+
+
+                // Get visible row count
+                var rowCount = grid.find('.k-grid-content tbody tr').length;
+
+                // If the row count is less that the page size add in the number of missing rows
+                if (rowCount < dataSource._take) {
+                    var addRows = dataSource._take - rowCount;
+                    for (var i = 0; i < addRows; i++) {
+                        grid.find('.k-grid-content tbody').append('<tr class="kendo-data-row"><td>&nbsp;</td></tr>');
+                    }
+                }
+            } 
+            
+            function afterCall () {  
+                             
+                if (stwpErrorMsg == "") {
+                        alert("Update successful.");
+                } else {
+                    
+                    if (ValidationMsg.substring(0, 9) == "Component") {
+                        alert("ValidationMsg");
+                        //kendo.mobile.application.navigate("components/formScanToWorkCutter/view.html");
+                    } 
+                }                
+            }
+            
+        </script> 
+
+    </div>
+
+</div>

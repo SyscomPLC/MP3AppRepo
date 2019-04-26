@@ -1,0 +1,394 @@
+{
+  "type": "kendo-ui-mobile",
+  "views": [
+    {
+      "type": "view",
+      "components": [],
+      "name": "home",
+      "title": "Home",
+      "addToNavigation": true,
+      "icon": "home"
+    },
+    {
+      "type": "view",
+      "components": [
+        {
+          "type": "form",
+          "components": [
+            {
+              "type": "field",
+              "name": "username",
+              "title": "Username",
+              "inputType": "text",
+              "placeholder": "johndoe"
+            },
+            {
+              "type": "field",
+              "name": "password",
+              "title": "Password",
+              "inputType": "text",
+              "placeholder": "johndoe"
+            }
+          ],
+          "name": "formLoginModel",
+          "submitButton": "Confirm",
+          "cancelButton": "Cancel"
+        }
+      ],
+      "name": "formLogin",
+      "title": "Login",
+      "addToNavigation": true,
+      "icon": "bookmarks"
+    },
+    {
+      "type": "view",
+      "components": [
+        {
+          "type": "form",
+          "components": [],
+          "name": "formMenuModel",
+          "submitButton": "Confirm",
+          "cancelButton": "Cancel"
+        }
+      ],
+      "name": "formMenu",
+      "title": "Menu",
+      "addToNavigation": true,
+      "icon": "bookmarks"
+    },
+    {
+      "type": "view",
+      "components": [
+        {
+          "type": "about",
+          "name": "aboutViewModel",
+          "appName": "HP John Lewis Warehouse App",
+          "appVersion": "Version 1",
+          "appIcon": "acreportimage.png",
+          "appDescription": "Application for for various warehouse activities created by Dominic M Tibbetts - Syscom PLC",
+          "contactButton": true,
+          "contactLabel": "Contact us",
+          "contactMail": "dominic.tibbetts@syscom.plc.uk",
+          "facebookButton": true,
+          "facebookLabel": "Like us on Facebook",
+          "facebookLink": "https://www.facebook.com/SyscomPLC",
+          "twitterButton": true,
+          "twitterLabel": "Follow us on Twitter",
+          "twitterLink": "https://twitter.com/syscomplc"
+        }
+      ],
+      "name": "aboutView",
+      "title": "About",
+      "addToNavigation": true,
+      "icon": "info"
+    },
+    {
+      "type": "view",
+      "components": [
+        {
+          "type": "form",
+          "components": [
+            {
+              "type": "field",
+              "name": "icsiWarehouse",
+              "title": "Warehouse",
+              "inputType": "text",
+              "placeholder": "Warehouse"
+            },
+            {
+              "type": "field",
+              "name": "icsiItemcode",
+              "title": "Item Code",
+              "inputType": "text",
+              "placeholder": "Item Code"
+            }
+          ],
+          "name": "formItemClassStockInfoModel",
+          "submitButton": "Confirm",
+          "cancelButton": "Cancel"
+        }
+      ],
+      "name": "formItemClassStockInfo",
+      "title": "Item Class Stock Information",
+      "addToNavigation": false
+    },
+    {
+      "type": "view",
+      "components": [
+        {
+          "type": "form",
+          "components": [
+            {
+              "type": "field",
+              "name": "stblWarehouse",
+              "title": "Warehouse",
+              "inputType": "text",
+              "placeholder": "Warehouse"
+            },
+            {
+              "type": "field",
+              "name": "stblLocation",
+              "title": "Location",
+              "inputType": "text",
+              "placeholder": "Location"
+            }
+          ],
+          "name": "formStockTakeByLocationModel",
+          "submitButton": "Confirm",
+          "cancelButton": "Cancel"
+        }
+      ],
+      "name": "formStockTakeByLocation",
+      "title": "Stock Take By Location",
+      "addToNavigation": false
+    },
+    {
+      "type": "view",
+      "components": [
+        {
+          "type": "form",
+          "components": [
+            {
+              "type": "field",
+              "name": "tfiInspectionWarehouse",
+              "title": "Insp Warehouse",
+              "inputType": "text",
+              "placeholder": "Insp Warehouse"
+            },
+            {
+              "type": "field",
+              "name": "tfiItemCode",
+              "title": "Item Code",
+              "inputType": "text",
+              "placeholder": "Item Code"
+            },
+            {
+              "type": "field",
+              "name": "tfiPiece",
+              "title": "Piece",
+              "inputType": "text",
+              "placeholder": "Piece"
+            },
+            {
+              "type": "field",
+              "name": "tfiSubIdentifier",
+              "title": "SubIdentifier",
+              "inputType": "text",
+              "placeholder": "Sub Identifier"
+            }
+          ],
+          "name": "formTransferFromInspectionModel",
+          "submitButton": "Confirm",
+          "cancelButton": "Cancel"
+        }
+      ],
+      "name": "formTransferFromInspection",
+      "title": "Transfer From Inspection",
+      "addToNavigation": false
+    },
+    {
+      "type": "view",
+      "components": [
+        {
+          "type": "form",
+          "components": [
+            {
+              "type": "field",
+              "name": "paWarehouse",
+              "title": "Warehouse",
+              "inputType": "text",
+              "placeholder": "Warheouse"
+            },
+            {
+              "type": "field",
+              "name": "paItemCode",
+              "title": "Item Code",
+              "inputType": "text",
+              "placeholder": "Item Code"
+            },
+            {
+              "type": "field",
+              "name": "paPiece",
+              "title": "Piece",
+              "inputType": "text",
+              "placeholder": "Piece"
+            },
+            {
+              "type": "field",
+              "name": "paSubIdenifier",
+              "title": "Sub Identifier",
+              "inputType": "text",
+              "placeholder": "Sub Identifier"
+            }
+          ],
+          "name": "formPutAwayModel",
+          "submitButton": "Confirm",
+          "cancelButton": "Cancel"
+        }
+      ],
+      "name": "formPutAway",
+      "title": "Put Away",
+      "addToNavigation": false
+    },
+    {
+      "type": "view",
+      "components": [
+        {
+          "type": "form",
+          "components": [
+            {
+              "type": "field",
+              "name": "icsiResWarehouse",
+              "title": "Warehouse",
+              "inputType": "text",
+              "placeholder": "Warehouse"
+            },
+            {
+              "type": "field",
+              "name": "icsiResItemCode",
+              "title": "Item Code",
+              "inputType": "text",
+              "placeholder": "Item Code"
+            }
+          ],
+          "name": "formItemClassStockInfoResultsModel",
+          "cancelButton": "Cancel"
+        }
+      ],
+      "name": "formItemClassStockInfoResults",
+      "title": "Item Class Stock Information",
+      "addToNavigation": false
+    },
+    {
+      "type": "view",
+      "components": [
+        {
+          "type": "form",
+          "components": [
+            {
+              "type": "field",
+              "name": "stblUpdItemCode",
+              "title": "Item Code",
+              "inputType": "text",
+              "placeholder": "Item Code"
+            },
+            {
+              "type": "field",
+              "name": "stblUpdPiece",
+              "title": "Piece",
+              "inputType": "text",
+              "placeholder": "Piece"
+            },
+            {
+              "type": "field",
+              "name": "stblUpdSubIdent",
+              "title": "Sub Identifier",
+              "inputType": "text",
+              "placeholder": "Sub Identifier"
+            },
+            {
+              "type": "field",
+              "name": "stblQuantity",
+              "title": "Quantity",
+              "inputType": "text",
+              "placeholder": "Quantity"
+            }
+          ],
+          "name": "formStockTakeByLocationUpdateModel",
+          "submitButton": "Confirm",
+          "cancelButton": "Cancel"
+        }
+      ],
+      "name": "formStockTakeByLocationUpdate",
+      "title": "Stock Take By Location",
+      "addToNavigation": false
+    },
+    {
+      "type": "view",
+      "components": [
+        {
+          "type": "form",
+          "components": [
+            {
+              "type": "field",
+              "name": "tfiUpdToWarhouse",
+              "title": "To Warehouse",
+              "inputType": "text",
+              "placeholder": "To Warehouse"
+            },
+            {
+              "type": "field",
+              "name": "tfiUpdToLocation",
+              "title": "To Location",
+              "inputType": "text",
+              "placeholder": "To Location"
+            },
+            {
+              "type": "field",
+              "name": "tfiUpdSubStorage",
+              "title": "Sub Storage",
+              "inputType": "text",
+              "placeholder": "Sub Storage"
+            },
+            {
+              "type": "field",
+              "name": "tfiUpdQuantity",
+              "title": "Quantity",
+              "inputType": "text",
+              "placeholder": "Quantity"
+            }
+          ],
+          "name": "formTransferFromInspectionUpdModel",
+          "submitButton": "Confirm",
+          "cancelButton": "Cancel"
+        }
+      ],
+      "name": "formTransferFromInspectionUpd",
+      "title": "Transfer From Inspection",
+      "addToNavigation": false
+    },
+    {
+      "type": "view",
+      "components": [
+        {
+          "type": "form",
+          "components": [
+            {
+              "type": "field",
+              "name": "paUpdToLocation",
+              "title": "To Location",
+              "inputType": "text",
+              "placeholder": "To Location"
+            },
+            {
+              "type": "field",
+              "name": "paUpdSubStorage",
+              "title": "Sub Storage",
+              "inputType": "text",
+              "placeholder": "Sub Storage"
+            },
+            {
+              "type": "field",
+              "name": "paUpdPutAway",
+              "title": "Put Away",
+              "inputType": "text",
+              "placeholder": "Put Away"
+            }
+          ],
+          "name": "formPutAwayUpdModel",
+          "submitButton": "Confirm",
+          "cancelButton": "Cancel"
+        }
+      ],
+      "name": "formPutAwayUpd",
+      "title": "Put Away",
+      "addToNavigation": false
+    }
+  ],
+  "dataProviders": [],
+  "name": "kendoUiMobileApp",
+  "navigation": "tabstrip",
+  "view": "home",
+  "transition": "slide",
+  "skin": "flat"
+}

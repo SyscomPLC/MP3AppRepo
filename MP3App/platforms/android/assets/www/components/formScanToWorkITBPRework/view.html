@@ -1,0 +1,389 @@
+<div data-role="view" data-title="Scan To Work - Items To Be Picked For Rework" data-layout="main-nonav" data-model="app.formScanToWorkITBPRework" data-show="onShowSTWPRework" data-after-show="afterShowSTWPRework">
+    <div id="formScanToWorkModel" class="form-view">        
+        <form>   
+            
+            <ul class="form-content" data-role="listview" data-style="inset">
+                <li>
+                    <label>Work Order
+                        <input id="itbprwWorkOrder" placeholder="Work Order" type="text">
+                    </label>
+                </li>
+                <li>
+                    <label>Warehouse
+                        <input id="itbprwWarehouse" placeholder="Warehouse" type="text">
+                    </label>
+                </li>
+                <li>
+                    <label>Operation
+                        <input id="itbprwOperation" placeholder="Operation" type="text">
+                    </label>
+                </li>
+                <li>
+                    <label>Description
+                        <input id="itbprwDescription" placeholder="Description" type="text">
+                    </label>
+                </li>
+                <li>
+                    <label>Work Centre
+                        <input id="itbprwWorkCentre" placeholder="Work Centre" type="text">
+                    </label>
+                </li>
+
+            </ul>
+            <hr>
+            <div id="example">
+                <div id="grid9"></div>          
+            </div>
+            <hr>
+            <div class="button-group button-group-horizontal"> 
+                <!--<a data-role="button">Up</a>                
+                <a data-role="button" data-click="moveToLostRolls">Move To Lost Rolls</a>                 
+                <a data-role="button" data-click="changePiece">Change Piece</a>
+                <a data-role="button">Down</a>-->
+            </div>
+            <div class="button-group button-group-vertical">                
+                 
+                <a class="primary" data-role="button" href="components/formScanToWorkPicker/view.html" data-icon="cross">Exit</a> 
+            </div>     
+        </form>
+        <style>
+            .k-grid tbody tr{
+            	height: 30px;                
+            }
+        </style>
+        <!-- START_CUSTOM_CODE_formPutAwayModel -->
+        <script>
+
+            function onShowSTWPRework() {  
+                
+                /*if (gcIssueStoragePrompt == "") {
+                    var storagehidden = true;
+                } else {
+                    var storagehidden = false;
+                }
+                
+                if (gcIssueSubStoragePrompt == "") {
+                     var substoragehidden = true;
+                } else {
+                    var substoragehidden = false;
+                } 
+                
+                
+                var cFilter = "WHERE EntityWIP = " + '"' + gcEntityWip + '"' + " AND WoNumber = " + '"' + stwpwonumber + '"';
+ 
+                //Herbert Parkinsons - hp-d-b0101a
+                //var serviceURI   = "http://mcjs-hperpapp1.net.JohnLewis.co.uk:8980/STWPickerService",
+                //    catalogURI   = serviceURI + "/static/STWPickerService.json",            
+                //    resourceName = 'STWPicker';
+                
+                //Syscom - Spectre                
+                //var serviceURI   = "http://spectre.int.syscom.plc.uk:8980/STWPickerService",
+                var serviceURI   = server_path + "/STWPickerService",
+                    catalogURI   = serviceURI + "/static/STWPickerService.json",            
+                    resourceName = 'STWPicker';
+               
+                var STWPicker = new JSDOTransport(serviceURI, catalogURI, resourceName,"",cFilter);
+
+                // fuction for grid details
+                $('#grid9').kendoGrid({
+                    // define transports as the class functions 
+                    autoBind: true,
+                    dataSource: {                 
+                        transport:STWPicker.transport,     
+                        schema: {
+                            model: {
+                                id: '_id',                            
+                                fields: {
+                                    // assign fields to read only in edit mode
+                                    //InEntity: { editable: false},
+                                    UserIdStamp: {editable: true},
+                                    WoNumber: { editable: false}, 
+                                    WarehouseCode: { editable: false},
+                                    ItemCode: { editable: false}, 
+                                    Identifier: { editable: false},
+                                    //UserField15: {editable: false},
+                                    cSchedQty: { editable: false},
+                                    cQtyAlloc: { editable: false},
+                                    //Substorage: { editable: false},
+                                    //UserField13: { editable: true},
+                                    Storage: { editable: false},
+                                    SubStorage:{ editable: false}
+                                    //SubIdentifier: { editable: false},                                
+                                    //UserField11: { editable: false},
+                                    //UserField14: { editable: true}
+                                }
+                            },
+                        pageSize: 10,
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true,
+                        },                    
+                        error: function(e) {
+                            alert("error");
+                            var obj, error = "";                    
+                            console.log('Error: ', e);
+                            if (e.xhr && e.xhr.response) {
+                                try {
+                                    obj = JSON.parse(e.xhr.response);
+                                    if (obj._retVal) {
+                                        error = obj._retVal;
+                                    }
+                                    alert("Error returned from server: " + error);
+                                }
+                                catch(e) {
+                                    alert("Error returned from server: " + xhr.response);                    
+                                }
+                            }                
+                        },
+                        requestEnd: function(e) {
+                            //alert(e.response.Errors); 
+                            if (e.type == "read") {  
+                                                               
+                            }
+                            
+                            if (e.type == "update") {
+                                window.alert("Record updated successfully.");
+                                $("#grid9").data("kendoGrid").dataSource.read();    
+                            }
+                        }, 
+                        success: function () {
+                                   
+                        },
+                        gridComplete: function () {
+                                   
+                        },
+                    },       
+                    change: function(e) {
+                        
+                        //if storage and substorage = LOST then disable lost rolls button
+                        
+                        var dataItem = this.dataItem(this.select());
+                        document.getElementById("itbprwWorkOrder").value = dataItem.WoNumber;
+                        document.getElementById("itbprwWarehouse").value = dataItem.WarehouseCode;
+                        document.getElementById("itbprwOperation").value = dataItem.OperationCode;
+                        document.getElementById("itbprwDescription").value = dataItem.OperationDesc;
+                        document.getElementById("itbprwWorkCentre").value = dataItem.WorkCenter;
+                        
+                        pcTransactionType = "ScanToRework";
+                        pcEntityWip = dataItem.EntityWip;
+                        pcReasonCode = dataItem.ReasonCode;
+                        pcWoNumber = dataItem.WoNumber;
+                        pcOperationSequence = dataItem.OperationSequence;
+                        pcInEntity = dataItem.InEntity;
+                        pcItemCode = dataItem.ItemCode;
+                        pcWarehouseCode = dataItem.WarehouseCode;
+                        pcIdentifier = dataItem.Identifier;
+                        pcSubIdentifier = dataItem.SubIdentifier;
+                        pcOldStorage = pcStorage;
+                        pcOldSubStorage = pcSubStorage;
+                        pcNewStorage = dataItem.Storage;
+                        pcNewSubStorage = dataItem.SubStorage;
+                        pcSchedQty = dataItem.cSchedQty;
+                        pcQtyAlloc = dataItem.cQtyAlloc;
+            
+                    },
+                    dataBound : function () {                                              
+                       
+                       DisplayNoResultsFound($('#grid9')); 
+                       
+                       var grid = $("#grid9").data("kendoGrid"); 
+                       grid.select('tr:eq(1)');                          
+                                                                                                                    
+                    },
+
+                    // Grid controls and config
+                    
+                    //height: 680,
+                    //height: 350,
+                    //pageSize: 10,	 
+                    //serverPaging: false,                    
+                    groupable: false,
+                    //sortable: true,
+                    //reorderable: true,
+                    resizable: true,
+                    selectable: "row",
+                    navigatable: true,                    
+                    filterable: false,
+                    scrollable: true,
+                    columnMenu: false,
+                    reorderable: true,
+                    pageable: {
+                      refresh: true,
+                      pageSizes: true,
+                      pageSize: 10,	                      
+                      buttonCount: 4
+                   },
+
+                   //noRecords: {
+                   //  template: "No data available to display."  
+                   //},
+                   editable: 'popup',
+                   edit: function(e) {                       
+                       
+                       var dataItem = this.dataItem
+                       
+                       dataItem.dirty = true;
+                       dataItem.UserIdStamp = "LostRolls";
+                       
+                   },
+                   columns: [                      
+                       { command: "edit", title: "", width: "150px" },                       
+                       //{ field: 'InEntity',  title: 'InEntity', type: 'int', width: 60, hidden: false },
+                       { field: 'UserIdStamp',  title: 'UserIdStamp', type: 'int', width: 60, hidden: true },
+                       { field: 'WoNumber',  title: 'WoNumber', type: 'int', width: 60, hidden: true },
+                       { field: 'WarehouseCode',  title: 'WarehouseCode', type: 'int', width: 60, hidden: true },
+                       { field: 'ItemCode',  title: 'Item Code', editable: false, type: 'int', width:140},                
+                       { field: 'Identifier',  title: 'Piece', type: 'int', width: 60 },  
+                       //{ field: 'UserField15',  title: 'To Warehouse', type: 'int', width: 60, hidden: true }, 
+                       { field: 'cSchedQty',  title: 'On Hand', type: 'int', width: 50, locked: false, lockable: false },
+                       { field: 'cQtyAlloc',  title: 'Qty Alloc', type: 'int', width: 50, locked: false, lockable: false},
+                       //{ field: 'Substorage',  title: 'S-lctn', type: 'int', width: 65, locked: false, lockable: false },
+                       //{ field: 'UserField13',  title: 'To S-lctn', type: 'int', width: 65, locked: false, lockable: false, hidden: true },
+                       { field: 'Storage',  title: gcIssueStoragePrompt, type: 'int', width: 50, hidden: storagehidden },
+                       { field: 'SubStorage',  title: gcIssueSubStoragePrompt, type: 'int', width: 85, hidden: substoragehidden },
+                       //{ field: 'UserField11',  title: 'On Avail', type: 'string', width: 80 },  
+                       //{ field: 'UserField14',  title: 'Mv Qty', type: 'string', width: 80, hidden: true },                        
+                       { title: '&nbsp;', width: '100%' }
+                   ]
+                
+                });*/
+
+            } 
+            
+            $(function() { 
+                
+            });
+            
+            function DestroySTWPReworkGrid () {  
+                $("#grid9").empty(); // empty the Grid content (inner HTML)    
+            }
+            
+            function moveToLostRolls () {                             
+                
+                var answer = confirm("Are you sure you wish to move to lost rolls?")
+                if (answer) {
+                    alert("You answered yes");
+                    pcTransactionType = "LostRolls";
+                    // ajax request to move to lost roles
+                    $.ajax({
+                      method: "POST",    
+                      //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/STWmovetolostrolls", 
+                      //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/STWmovetolostrolls",
+                      url: server_path + service_path + "STWmovetolostrolls",
+                      beforeSend: function() {
+                          alert("before send");
+                          time = new Date();
+                      },
+                      headers: {
+                        "accept": "application/json",
+                        "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                      }, 
+                      data: {
+                          "TransactionType": pcTransactionType,
+                          "EntityWip": pcEntityWip,
+                          "ReasonCode" : pcReasonCode,
+                          "WoNumber" : pcWoNumber,
+                          "OperationSequence" : pcOperationSequence,
+                          "InEntity" : pcInEntity,
+                          "ItemCode" : pcItemCode,
+                          "WarehouseCode" : pcWarehouseCode,
+                          "Identifier" : pcIdentifier,
+                          "SubIdentifier" : pcSubIdentifier,
+                          "OldStorage" : pcStorage,
+                          "NewStorage" : "",
+                          "OldSubStorage" : pcSubStorage,
+                          "NewSubStorage" : "",
+                          "SchedQty" : pcSchedQty,
+                          "QtyAlloc" : pcQtyAlloc,
+                          "AllocIdentifier" : "",
+                          "AllocSubIdentifier" : ""
+                      },                         
+                      success: function (response) {                          
+                           //alert(new Date() - time + "ms");                                                     
+                          }, 
+                          async: false,
+                          //timeout: 1000,
+                          error: function(request, error) {
+                            
+                            if (error == "timeout") {                                
+                                $.ajax(this);
+                            } else {
+                                window.alert("Failed to reach server!")    
+                            }
+
+                          }  
+                    })
+                    .done(function(response) {            
+                        
+                        var ValidationMsg = (response.ValidationResponse[0].pcError);
+                        //$("#grid6").data("kendoGrid").dataSource.read();
+                        
+                        if (ValidationMsg == "") {
+                            alert("Update Successful");
+                            
+                            //get alternative items
+                            changePieceLostRolls();
+                        } else {
+                            alert(ValidationMsg);
+                            
+                        }
+                                                
+                        
+                    });              
+                }
+                else {
+                    alert("You answered no");
+                    
+                }
+            }
+            
+            function changePiece() {
+                pcAllocIdentifier = pcIdentifier;
+                pcAllocSubIdentifier = pcSubIdentifier;
+                pcTransactionType = "AlternativeRolls";
+                DestroySTWPReworkGrid();
+                
+                kendo.mobile.application.navigate("components/formScanToWorkAltItemsRework/view.html");
+                
+            }
+            
+            function changePieceLostRolls() {
+                pcAllocIdentifier = pcIdentifier;
+                pcAllocSubIdentifier = pcSubIdentifier;
+                pcTransactionType = "LostRollsAlternative";
+                
+                DestroySTWPGrid();
+                kendo.mobile.application.navigate("components/formScanToWorkAltItemsRework/view.html");
+                
+            }
+            
+            // funciton to display message in grid when no records found
+            function DisplayNoResultsFound(grid) {
+                // Get the number of Columns in the grid
+                var dataSource = grid.data("kendoGrid").dataSource;
+                var colCount = grid.find('.k-grid-header colgroup > col').length;
+
+                // If there are no results display info to user
+                if (dataSource._view.length == 0) {
+                    grid.find('.k-grid-content tbody')
+                        .append('<tr class="kendo-data-row"><td colspan="' + colCount + '" style="text-align:center"><b>No Results Found! Please refine your search.</b></td></tr>');
+                }
+
+                // Get visible row count
+                var rowCount = grid.find('.k-grid-content tbody tr').length;
+
+                // If the row count is less that the page size add in the number of missing rows
+                if (rowCount < dataSource._take) {
+                    var addRows = dataSource._take - rowCount;
+                    for (var i = 0; i < addRows; i++) {
+                        grid.find('.k-grid-content tbody').append('<tr class="kendo-data-row"><td>&nbsp;</td></tr>');
+                    }
+                }
+            }            
+
+        </script> 
+        <!-- END_CUSTOM_CODE_formPutAwayModel -->
+    </div>
+    <!-- START_CUSTOM_CODE_formPutAway -->
+    <!-- END_CUSTOM_CODE_formPutAway -->
+</div>

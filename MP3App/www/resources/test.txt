@@ -1,0 +1,714 @@
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12
+&ANALYZE-RESUME
+/* Connected Databases 
+          dwtemp           PROGRESS
+*/
+
+
+/* Temp-Table and Buffer definitions                                    */
+DEFINE TEMP-TABLE gttInvJrnlDetailV1 NO-UNDO LIKE ttInvJrnlDetailV1.
+DEFINE TEMP-TABLE gttInvJrnlV1 NO-UNDO LIKE ttInvJrnlV1.
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Procedure 
+/*------------------------------------------------------------------------
+    File        : 
+    Purpose     :
+
+    Syntax      :
+
+    Description :
+
+    Author(s)   :
+    Created     :
+    Notes       :
+  ----------------------------------------------------------------------*/
+/*          This .W file was created with the Progress AppBuilder.      */
+/*----------------------------------------------------------------------*/
+
+/* ***************************  Definitions  ************************** */
+
+{utils/system.i}
+{utils/uom.i}
+
+DEFINE INPUT  PARAMETER pcTransactionType  AS CHARACTER   NO-UNDO.
+DEFINE INPUT  PARAMETER pcSheetNumber      AS CHARACTER   NO-UNDO.
+DEFINE INPUT  PARAMETER pcInEntity         AS CHARACTER   NO-UNDO.
+DEFINE INPUT  PARAMETER pcItemcode         AS CHARACTER   NO-UNDO.
+DEFINE INPUT  PARAMETER pcOldWarehouseCode AS CHARACTER   NO-UNDO.
+DEFINE INPUT  PARAMETER pcNewWarehouseCode AS CHARACTER   NO-UNDO.
+DEFINE INPUT  PARAMETER pcIdentifier       AS CHARACTER   NO-UNDO.
+DEFINE INPUT  PARAMETER pcSubIdentifier    AS CHARACTER   NO-UNDO.
+DEFINE INPUT  PARAMETER pcOldStorage       AS CHARACTER   NO-UNDO.
+DEFINE INPUT  PARAMETER pcNewStorage       AS CHARACTER   NO-UNDO.
+DEFINE INPUT  PARAMETER pcOldSubstorage    AS CHARACTER   NO-UNDO.
+DEFINE INPUT  PARAMETER pcNewSubstorage    AS CHARACTER   NO-UNDO.
+DEFINE INPUT  PARAMETER pcQuantityOnhand   AS character   NO-UNDO.
+DEFINE INPUT  PARAMETER pcQuantityToMove   AS CHARACTER   NO-UNDO.
+
+define output parameter pcError as char no-undo. 
+
+
+
+def var iQuantityToMove as int no-undo.
+def var hStockSvc as handle no-undo.
+def var iYear as int no-undo.
+def var iPeriod as int no-undo.
+def var hInControlSvc as handle no-undo.
+def var hCountSheetSvc as handle no-undo.
+def var cCostmethod as char no-undo.
+def var cCost as char no-undo.
+def var cArEntity as char no-undo.
+def var cReasonGlcode as char no-undo.
+def var lMoveAllocPps as log no-undo.
+def var lInsufficient as log no-undo.
+
+define buffer bFromWarehouse for Warehouse.
+define buffer bToWarehouse   for Warehouse.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
+
+/* ********************  Preprocessor Definitions  ******************** */
+
+&Scoped-define PROCEDURE-TYPE Procedure
+&Scoped-define DB-AWARE no
+
+
+
+/* _UIB-PREPROCESSOR-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+/* *********************** Procedure Settings ************************ */
+
+&ANALYZE-SUSPEND _PROCEDURE-SETTINGS
+/* Settings for THIS-PROCEDURE
+   Type: Procedure
+   Allow: 
+   Frames: 0
+   Add Fields to: Neither
+   Other Settings: CODE-ONLY COMPILE
+   Temp-Tables and Buffers:
+      TABLE: gttInvJrnlDetailV1 T "?" NO-UNDO dwtemp ttInvJrnlDetailV1
+      TABLE: gttInvJrnlV1 T "?" NO-UNDO dwtemp ttInvJrnlV1
+   END-TABLES.
+ */
+&ANALYZE-RESUME _END-PROCEDURE-SETTINGS
+
+/* *************************  Create Window  ************************** */
+
+&ANALYZE-SUSPEND _CREATE-WINDOW
+/* DESIGN Window definition (used by the UIB) 
+  CREATE WINDOW Procedure ASSIGN
+         HEIGHT             = 15
+         WIDTH              = 60.
+/* END WINDOW DEFINITION */
+                                                                        */
+&ANALYZE-RESUME
+
+ 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Procedure 
+
+
+/* ***************************  Main Block  *************************** */
+
+  message "in mobilestocktake.p pctransactiontype = " pctransactiontype view-as alert-box.
+
+
+  if pcTransactiontype = "Count":u then run MobileStocktake.
+  if pcTransactiontype = "LocationComplete":u then run LocationComplete.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+/* **********************  Internal Procedures  *********************** */
+
+&IF DEFINED(EXCLUDE-LocationComplete) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE LocationComplete Procedure 
+PROCEDURE LocationComplete :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    hInControlSvc = requestService("InControl":u, THIS-PROCEDURE, "":u) NO-ERROR.
+    hCountSheetSvc = requestService("CountSheet":u , this-procedure , "":u).
+
+    assign pcNewWarehouseCode = pcOldWarehouseCode.
+
+   message " in location complete" view-as alert-box. 
+
+    /*validate entity*/
+    FIND ControlEntity
+        WHERE ControlEntity.EntityCode = pcInEntity
+        AND   ControlEntity.ModuleId   = {&xiModGeneralLedger}
+        NO-LOCK NO-ERROR.
+        
+    if not available ControlEntity then 
+    do:
+        pcError = "Error: Cannot Find GL Control entity for ":u + pcInEntity.    
+        return.
+    end.      
+    
+    FIND InControl
+       WHERE InControl.GlEntity = ControlEntity.ControlEntityCode
+       and   InControl.InEntity = pcInEntity
+       NO-LOCK NO-ERROR.
+
+    if not available (InControl) then
+    do:
+        pcError = "Error: Cannot Find IN Control entity for ":u + ControlEntity.ControlEntityCode.
+        
+        return.        
+    end.    
+    
+    DYNAMIC-FUNCTION("getYearPeriod":u IN hInControlSvc, 
+             INPUT pcInEntity,
+             OUTPUT iYear,
+             OUTPUT iPeriod).
+             
+    /*validate warehouse*/
+    Find bToWarehouse
+        where bToWarehouse.WarehouseCode = pcNewWarehouseCode
+        no-lock no-error.
+
+    if not available bToWarehouse then 
+    do:
+        pcError = "Error: Cannot Find To Warehouse ":u + pcNewWarehouseCode.
+        return.
+    end. 
+
+   /*find CountSheet*/
+       
+   find CountSheet 
+       where CountSheet.InEntity      = pcInEntity
+       and   CountSheet.WarehouseCode = pcNewWarehouseCode
+       and   CountSheet.SheetNumber   = int(pcSheetNumber)
+       no-lock no-error.
+    
+   if not available (CountSheet) then
+   do:
+       pcError = "Error: Cannot find CountSheet " + pcSheetNumber +  " in warehouse " + pcNewWarehouseCode.
+       return.       
+   end.
+        
+    
+   message "before update countsheet for lost rolls" view-as alert-box. 
+   /*update countsheet for lost rolls and set location complete*/
+   run UpdateCountSheetForLostRolls in hCountSheetSvc (input CountSheet.InEntity,
+                                                       input CountSheet.Warehousecode,
+                                                       input CountSheet.SheetNumber,
+                                                       input CountSheet.CountNumber).
+    
+   message "after  update countsheet for lost rolls" view-as alert-box.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-MobileStocktake) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE MobileStocktake Procedure 
+PROCEDURE MobileStocktake :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes: we are moving one piece or itemclassstock out at a time so create invjrnl 
+         / invjrnldetail and send to fcstock      
+------------------------------------------------------------------------------*/
+
+def var iUomQuantityToMove as int no-undo.
+def var dQuantityToMove as dec no-undo.
+
+    hInControlSvc = requestService("InControl":u, THIS-PROCEDURE, "":u) NO-ERROR.
+    hStockSvc = requestService("StockUpdate":u, THIS-PROCEDURE, "":u) NO-ERROR. 
+    cArEntity = getGlobalChar({&xcModEntPrefix} + STRING({&xiModAccountReceivable})).
+
+    /*intra whs movement so old and new whs same*/
+    assign pcNewWarehouseCode = pcOldWarehouseCode.
+
+
+    /*validate entity*/
+    FIND ControlEntity
+        WHERE ControlEntity.EntityCode = pcInEntity
+        AND   ControlEntity.ModuleId   = {&xiModGeneralLedger}
+        NO-LOCK NO-ERROR.
+        
+    if not available ControlEntity then 
+    do:
+        pcError = "Error: Cannot Find GL Control entity for ":u + pcInEntity.    
+        return.
+    end.      
+    
+    FIND InControl
+       WHERE InControl.GlEntity = ControlEntity.ControlEntityCode
+       and   InControl.InEntity = pcInEntity
+       NO-LOCK NO-ERROR.
+
+    if not available (InControl) then
+    do:
+        pcError = "Error: Cannot Find IN Control entity for ":u + ControlEntity.ControlEntityCode.
+        
+        return.        
+    end.    
+
+
+    
+    DYNAMIC-FUNCTION("getYearPeriod":u IN hInControlSvc, 
+             INPUT pcInEntity,
+             OUTPUT iYear,
+             OUTPUT iPeriod).
+             
+    /*validate warehouse*/
+    Find bToWarehouse
+        where bToWarehouse.WarehouseCode = pcNewWarehouseCode
+        no-lock no-error.
+
+    if not available bToWarehouse then 
+    do:
+        pcError = "Error: Cannot Find Warehouse ":u + pcNewWarehouseCode.
+        return.
+    end. 
+   
+    /*validate storage*/   
+    IF bToWarehouse.StorageReq THEN 
+    DO:
+      FIND FIRST WhsStorageSub
+          WHERE WhsStorageSub.WarehouseCode = bToWarehouse.WarehouseCode
+          AND  WhsStorageSub.Storage        = pcNewStorage
+          NO-LOCK NO-ERROR.
+
+      IF NOT AVAILABLE (WhsStorageSub) THEN
+      do:
+          pcError = "Invalid Storage Location":u.
+          return.
+      end.    
+    end.      
+   
+    /*Validate Substorage*/
+    IF bToWarehouse.SubstorageReq THEN 
+    DO:
+      FIND  WhsStorageSub
+          WHERE WhsStorageSub.WarehouseCode = bToWarehouse.WarehouseCode
+          AND  WhsStorageSub.Storage        = pcNewStorage
+          AND  WhsStorageSub.SubStorage     = pcNewSubStorage
+          NO-LOCK NO-ERROR.
+
+      IF NOT AVAILABLE (WhsStorageSub) THEN
+      do:
+          pcError =  "Invalid Substorage Location":u.
+          return.    
+      end.    
+    end.   
+    /*validate item exists in the current entity*/
+    find item
+       where Item.inEntity = pcinEntity
+       and   item.ItemCode = pcItemcode
+       no-lock no-error.
+    
+    if not available Item then 
+    do:
+       pcError = "Error: Cannot Find Item ":u + pcItemcode + " in entity " + pcInEntity.
+       return.       
+    end.
+    
+    find ItemClass 
+        where ItemClass.ItemClass = Item.ItemClass
+        no-lock no-error.
+
+    /*validate identifier and subidentifier*/
+    if Itemclass.UseIdentifier and pcIdentifier = "":u then
+    do:
+       pcError = "Error: You must enter a value for " + ItemClass.IdentifierLabel.
+       return.       
+    end.
+
+    if Itemclass.UseSubIdentifier and pcSubIdentifier = "":u then
+    do:
+       pcError = "Error: You must enter a value for " + ItemClass.SubIdentifierLabel.
+       return.       
+    end.
+
+    
+
+    /*validate  quantity*/
+    if int(pcQuantityToMove) < 0 then
+    do:
+       pcError = "Error: The quantity counted cannot be negative".
+       return.       
+    end.
+
+    if int(pcQuantityToMove) = 0 then
+    do:
+       pcError = "Error: The quantity counted cannot be 0".
+       return.       
+    end.
+    
+    dQuantityToMove = dec(pcQuantitytoMove).
+    find uom where uom.uomcode = item.uomcode no-lock no-error.
+    if available Uom then 
+        assign dQuantityToMove = dQuantityToMove / Uom.Unit.
+        
+    iUomQuantityToMove = int(dQuantityToMove).    
+    
+    /*validate quantity against scanqtyformat*/
+    if length(iUomQuantityToMove) > length(InControl.ScanQuantityFormat) then
+    do:
+       pcError = "Error: The quantity counted length is incorrect, please compare with the InControl scan quantity format of " + InControl.ScanQuantityFormat.
+       return.       
+    end.
+
+   /*find CountSheet*/
+       
+   find first CountSheet 
+       where CountSheet.InEntity      = pcInEntity
+       and   CountSheet.WarehouseCode = pcNewWarehouseCode
+       and   CountSheet.SheetNumber   = int(pcSheetNumber)
+       no-lock no-error.
+    
+   if not available (CountSheet) then
+    do:
+       pcError = "Error: Cannot find CountSheet " + pcSheetNumber +  " in warehouse " + pcNewWarehouseCode.
+       return.       
+    end.
+
+
+    
+
+    iQuantityToMove = int(pcQuantityToMove).
+    /*set insufficient flag to false and the Updatecountsheet will set it to true if required*/ 
+    lInsufficient = false. 
+    run UpdateCountsheet.
+    if lInsufficient then 
+        pcError =  "WARNING: The Counted quantity is not sufficient for existing allocated / picking slip values":u. 
+    
+    if pcerror = "":u then pcError = "Update Successful":u. 
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-UpdateCountsheet) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE UpdateCountsheet Procedure 
+PROCEDURE UpdateCountsheet :
+/*--------------------------------------------------------------------------*/
+
+  def var hCountSheetSvc       as handle no-undo.
+  def var hCountSheetDetailSvc as handle no-undo.
+  def var hCountItemClassSvc   as handle no-undo.
+  DEFINE VARIABLE hCountItemSvc AS HANDLE      NO-UNDO.
+
+  DEF VAR ionhand              AS INTEGER NO-UNDO.
+
+  DEFINE VARIABLE cInEntity AS CHARACTER   NO-UNDO.
+  DEFINE VARIABLE iSheetNumber AS INTEGER     NO-UNDO.
+  DEFINE VARIABLE iCountNumber AS INTEGER     NO-UNDO.
+  DEFINE VARIABLE lMultiStockCount AS LOGICAL INITIAL FALSE NO-UNDO.
+  DEFINE VARIABLE cItemCode AS CHARACTER   NO-UNDO.
+  DEFINE VARIABLE cWhsCode  AS CHARACTER   NO-UNDO.
+  DEFINE VARIABLE cGlEntity AS CHARACTER  NO-UNDO.
+  DEFINE VARIABLE lFindPieceLocation AS LOGICAL INITIAL FALSE NO-UNDO.
+
+  def var lLostRoll as log no-undo.
+  def var rRowid as rowid no-undo.  
+  def var lInsufficientQty  as log initial false no-undo.
+  def var cStorage as char no-undo.
+  def var cSubStorage as char no-undo.
+  def var cerror as char no-undo.
+  def var iOldCount as int no-undo.
+    
+  define buffer bCountItemClass for CountItemClass.  
+
+
+  message "in update count sheet" view-as alert-box.
+
+  hCountSheetSvc = requestService("CountSheet":u , this-procedure , "":u).
+  assert(valid-handle(hCountSheetSvc) , "Invalid Handle":u).
+  
+  hCountSheetDetailSvc = requestService("CountSheetDetail":u , this-procedure , "":u).
+  assert(valid-handle(hCountSheetDetailSvc) , "Invalid Handle":u).  
+  
+  hCountItemClassSvc = requestService("CountItemClass":u , this-procedure , "":u).
+  assert(valid-handle(hCountItemClassSvc) , "Invalid Handle":u).
+
+  hCountItemSvc = requestService("CountItem":u , this-procedure , "":u).
+  assert(valid-handle(hCountItemSvc) , "Invalid Handle":u).
+
+  hInControlSvc = requestService("InControl":u, THIS-PROCEDURE, "":u) NO-ERROR.
+
+  FIND FIRST CountSheetDetail NO-LOCK NO-ERROR.
+  IF NOT AVAILABLE CountSheetDetail THEN RETURN {&xSuccess}.
+  
+  assign iSheetNumber = CountSheetDetail.sheetnumber
+         cInEntity    = CountSheetDetail.InEntity
+         iCountNumber = CountSheetDetail.CountNumber
+         cItemCode    = CountSheetDetail.ItemCode
+         cWhsCode     = CountSheetDetail.WarehouseCode.
+ 
+  cglEntity = getGlobalChar("CurrentEntityCode":u).
+    
+  FIND ControlEntity NO-LOCK
+      WHERE ControlEntity.EntityCode = cglEntity
+      AND   ControlEntity.ModuleId   = {&xiModGeneralLedger}.
+    
+  FIND InControl
+     WHERE InControl.GlEntity = ControlEntity.ControlEntityCode
+     and   InControl.InEntity = pcInEntity
+     NO-LOCK NO-ERROR.
+
+  if avail(inControl) then 
+  do:  
+      assign lInsufficientQty   = InControl.InsufficientQuantity
+             lFindPieceLocation = InControl.FindPieceLocation.
+      if inControl.MultipleStockCount then
+          assign lMultiStockCount   = true.
+      else lMultiStockCount = false.
+  END.
+
+
+  /*we deal with 1 piece at a time*/
+  TRANSBLK:
+  do transaction:
+    
+     find first CountSheet 
+        where CountSheet.InEntity      = pcInEntity
+        and   CountSheet.WarehouseCode = pcNewWarehouseCode
+        and   CountSheet.SheetNumber   = int(pcSheetNumber)
+        no-lock no-error.    
+    
+    
+     /*does the count sheet detail exist?*/
+     find first CountSheetDetail 
+         where CountSheetDetail.InEntity      = CountSheet.InEntity
+         and   CountSheetDetail.SheetNumber   = CountSheet.SheetNumber
+         and   CountSheetDetail.ItemCode      = pcItemCode
+         and   CountSheetDetail.WarehouseCode = CountSheet.WarehouseCode
+         and   CountSheetDetail.CountNumber   = CountSheet.CountNumber
+         and   CountSheetDetail.Storage       = pcOldStorage
+         and   CountSheetDetail.SubStorage    = pcOldSubStorage
+         EXCLUSIVE NO-ERROR.
+                   
+    if not available CountSheetDetail then
+    do:
+         CREATE CountSheetDetail. 
+         ASSIGN CountSheetDetail.ActualCount       = 0
+                CountSheetDetail.InEntity          = CountSheet.InEntity
+                CountSheetDetail.ItemCode          = pcItemCode
+                CountSheetDetail.QuantityOnHand    = 0
+                CountSheetDetail.SheetNumber       = CountSheet.SheetNumber
+                CountSheetDetail.Storage           = pcOldStorage
+                CountSheetDetail.SubStorage        = pcOldSubStorage
+                CountSheetDetail.WarehouseCode     = CountSheet.Warehouse
+                CountSheetDetail.CountNumber       = CountSheet.CountNumber.
+    end.
+
+    
+     /*does this count item class record exist?*/
+     find CountItemClass
+        where CountItemClass.InEntity      = CountSheet.InEntity 
+        and   CountItemClass.WarehouseCode = CountSheet.WarehouseCode  
+        and   CountItemClass.SheetNumber   = CountSheet.SheetNumber
+        and   CountItemClass.ItemCode      = pcItemCode  
+        and   CountItemClass.Storage       = pcOldStorage
+        and   CountItemClass.SubStorage    = pcOldSubStorage
+        and   CountItemClass.Identifier    = pcIdentifier
+        and   CountItemClass.SubIdentifier = pcSubidentifier
+        exclusive no-error.
+
+    
+     if available CountItemClass and CountItemClass.ActualCount <> ?
+        then assign iOldCount = CountItemClass.ActualCount.
+     else assign iOldCount = 0.   
+     /*if the count itemclass is not there then we can create ithe countitemclass*/
+     if not available CountItemClass then
+     do:
+        CREATE CountItemClass. 
+        ASSIGN CountItemClass.ActualCount       = 0
+               CountItemClass.InEntity          = CountSheetDetail.InEntity
+               CountItemClass.ItemCode          = CountSheetDetail.ItemCode
+               CountItemClass.QuantityOnHand    = 0
+               CountItemClass.SheetNumber       = CountSheetDetail.SheetNumber
+               CountItemClass.Storage           = CountSheetDetail.Storage
+               CountItemClass.SubStorage        = CountSheetDetail.SubStorage
+               CountItemClass.WarehouseCode     = CountSheetDetail.Warehouse
+               CountItemClass.Identifier        = pcIdentifier
+               CountItemClass.SubIdentifier     = pcSubIdentifier
+               CountItemClass.CountNumber       = CountSheetDetail.CountNumber
+               CountItemClass.ItemMoved         = false.
+               
+
+     end.
+     
+    
+     assign CountItemClass.ActualCount = iQuantityToMove.  
+     
+     
+    if CountSheetDetail.ActualCount = ? then CountSheetDetail.ActualCount = 0.
+    assign CountSheetDetail.ActualCount = max(CountSheetDetail.ActualCount - iOldCount,0) +  iQuantityToMove.   
+    
+    
+    
+     /*does the itemclassstock exist in the stated location - is this a normal count*/
+     find first ItemclassStock
+        where ItemClassStock.InEntity       = CountItemClass.InEntity
+        and   ItemClassStock.Itemcode       = CountItemClass.ItemCode
+        and   ItemclassStock.WarehouseCode  = CountItemClass.WarehouseCode
+        and   ItemClassStock.Identifier     = CountItemClass.Identifier
+        and   ItemClassStock.SubIdentifier  = CountItemClass.SubIdentifier
+        and   ItemClassStock.Storage        = CountItemClass.Storage
+        and   ItemClassStock.SubStorage     = CountItemClass.SubStorage     
+        and   ItemClassStock.QuantityOnhand > 0                               
+        no-lock no-error.    
+    
+     /*check insufficient qty if required and set field accordingly*/
+     if available ItemClassStock and lInsufficientQty then
+     do:
+         if  CountItemClass.ActualCount < (max(ItemClassStock.QuantityAlloc,0) + max(ItemClassStock.QuantityOnPps,0) + max(ItemClassStock.DespatchNoteQty,0)) then
+              assign CountItemClass.InsufficientQuantity = true.
+         else assign CountItemClass.InsufficientQuantity = false.
+         lInsufficient =  CountItemClass.InsufficientQuantity.
+     end.
+    
+     /*if not then we need to find the piece location - if incontrol is set*/
+     if not available ItemClassStock then
+     do:
+     
+        /*is lost pieces logic - FindPieceLocation set on InControl?*/
+        find item 
+            where item.InEntity = CountItemClass.InEntity
+            and   item.itemCode = CountItemClass.ItemCode 
+            no-lock no-error.
+        if available (Item) then
+            find itemClass where itemClass.itemClass = item.itemClass no-lock no-error.  
+      
+        if available ItemClass and not (itemClass.itemClass = {&xiItemClassNormal}) and lFindPieceLocation then
+        do:
+            /*first check the lost first lost rolls location*/
+            run GetLostRollsStorageAndSub in hInControlSvc (input CountItemClass.WarehouseCode,
+                                                            output cStorage,
+                                                            output cSubStorage,
+                                                            output cError).
+            /*is this piece in lost rolls location?*/
+            find first ItemclassStock
+               where ItemClassStock.InEntity      = CountItemClass.InEntity
+               and   ItemClassStock.Itemcode      = CountItemClass.ItemCode
+               and   ItemclassStock.WarehouseCode = CountItemClass.WarehouseCode
+               and   ItemClassStock.Identifier    = CountItemClass.Identifier
+               and   ItemClassStock.SubIdentifier = CountItemClass.SubIdentifier
+               and   ItemClassStock.Storage       = cStorage
+               and   ItemClassStock.SubStorage    = cSubStorage
+               and   ItemClassStock.Storage       <> CountItemClass.Storage
+               and   ItemClassStock.SubStorage    <> CountItemClass.SubStorage                                    
+               and   ItemClassStock.QuantityOnHand > 0
+               no-lock no-error.
+    
+            /*is this piece in another location?*/
+            if not available ItemClassStock then
+            do:
+               find first ItemclassStock
+                 where ItemClassStock.InEntity      =  CountItemClass.InEntity
+                 and   ItemClassStock.Itemcode      =  CountItemClass.ItemCode
+                 and   ItemclassStock.WarehouseCode =  CountItemClass.WarehouseCode
+                 and   ItemClassStock.Identifier    =  CountItemClass.Identifier
+                 and   ItemClassStock.SubIdentifier =  CountItemClass.SubIdentifier
+                 and   ItemClassStock.Storage       <> CountItemClass.Storage
+                 and   ItemClassStock.SubStorage    <> CountItemClass.SubStorage
+                 and   ItemClassStock.QuantityOnHand > 0
+                 no-lock no-error.               
+            
+            end.
+            if available ItemClassStock then   
+            do:                    
+                 /*is this roll on another sheet?*/
+                 find bCountItemClass
+                     where bCountItemClass.InEntity      = ItemClassStock.InEntity 
+                     and   bCountItemClass.WarehouseCode = ItemClassStock.WarehouseCode  
+                     and   bCountItemClass.SheetNumber   <> CountItemClass.SheetNumber
+                     and   bCountItemClass.ItemCode      = ItemClassStock.ItemCode  
+                     and   bCountItemClass.Storage       = ItemClassStock.Storage
+                     and   bCountItemClass.SubStorage    = ItemClassStock.SubStorage
+                     and   bCountItemClass.Identifier    = ItemClassStock.Identifier
+                     and   bCountItemClass.SubIdentifier = ItemClassStock.Subidentifier
+                     exclusive no-error.
+              
+
+                if available bCountItemClass then
+                    assign bCountItemClass.ActualCount = 0
+                           bCountItemClass.ItemMoved = true.    
+                else do:
+                     /*create the count sheet detail*/
+                     CREATE CountSheetDetail. 
+                     ASSIGN CountSheetDetail.ActualCount       = 0
+                            CountSheetDetail.InEntity          = ItemClassStock.InEntity
+                            CountSheetDetail.ItemCode          = ItemClassStock.ItemCode
+                            CountSheetDetail.QuantityOnHand    = ItemClassStock.QuantityOnhand
+                            CountSheetDetail.SheetNumber       = CountItemClass.SheetNumber
+                            CountSheetDetail.Storage           = ItemClassStock.Storage
+                            CountSheetDetail.SubStorage        = ItemClassStock.SubStorage
+                            CountSheetDetail.WarehouseCode     = ItemClassStock.Warehouse
+                            CountSheetDetail.CountNumber       = CountItemClass.CountNumber.
+    
+                       
+                  
+                     /*create the count and class records for the stocktake to remove the qty from the lost rolls*/ 
+       
+                     CREATE bCountItemClass. 
+                     ASSIGN bCountItemClass.ActualCount       = 0
+                            bCountItemClass.InEntity          = ItemClassStock.InEntity
+                            bCountItemClass.ItemCode          = ItemClassStock.ItemCode
+                            bCountItemClass.QuantityOnHand    = ItemClassStock.QuantityOnhand
+                            bCountItemClass.SheetNumber       = CountItemClass.SheetNumber
+                            bCountItemClass.Storage           = ItemClassStock.Storage
+                            bCountItemClass.SubStorage        = ItemClassStock.SubStorage
+                            bCountItemClass.WarehouseCode     = ItemClassStock.Warehouse
+                            bCountItemClass.Identifier        = ItemClassStock.Identifier
+                            bCountItemClass.SubIdentifier     = ItemClassStock.SubIdentifier
+                            bCountItemClass.ItemMoved         = true
+                            .   
+      
+                
+                end.                         
+                /*when finding piece in another location - check insufficient qty if required and set field accordingly*/
+                if available ItemClassStock and lInsufficientQty then
+                do:
+                    if  CountItemClass.ActualCount < (max(ItemClassStock.QuantityAlloc,0) + max(ItemClassStock.QuantityOnPps,0) + max(ItemClassStock.DespatchNoteQty,0)) then
+                         assign CountItemClass.InsufficientQuantity = true.
+                    else assign CountItemClass.InsufficientQuantity = false.
+                    lInsufficient =  CountItemClass.InsufficientQuantity.
+                end.               
+            end.
+        end.     
+     end.
+   end. 
+    
+    
+   
+
+
+      
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+

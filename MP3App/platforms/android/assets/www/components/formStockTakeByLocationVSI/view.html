@@ -1,0 +1,275 @@
+<div data-role="view" data-title="Stock Take By Location" data-layout="main-nonav" data-model="app.formStockTakeByLocationVSI" data-show="onShowformStockTakeByLocationVSI">
+    <div id="formStockTakeByLocationVSI" class="form-view">
+        <div id="example2" style="overflow: auto; height: calc(100% - 70px); padding: 10px">
+                <div id="grid15"></div>          
+            </div> 
+        <hr>
+        <form>
+            
+            <div class="button-group button-group-vertical">
+                <a class="regular" data-role="button" data-click="LocationComplete" data-icon="tick">Location Completed</a>
+                <a class="primary" data-role="button" data-click="exit" data-icon="cross">Cancel</a>
+            </div>   
+           
+        </form>   
+
+        <script>
+                   
+            function onShowformStockTakeByLocationVSI() {
+
+               var cFilter = "WHERE InEntity = " + '"' + gcInEntity + '"' + " AND SheetNumber = " + '"' + pcSTBLSheetNumber + '"' 
+                              + " AND WarehouseCode = " + '"' + pcSTBLWarehouseCode + '"';
+              
+                //var serviceURI   = "http://spectre.int.syscom.plc.uk:8980/GetScannedItemsService",
+                var serviceURI   = server_path + (deploy_method=="deployed" ? deploy_service : "/GetScannedItemsService"),    
+                    catalogURI   = serviceURI + "/static/GetScannedItemsService.json",            
+                    resourceName = 'ScannedItems';
+                             
+                //var Putaway = new JSDOTransport(serviceURI, catalogURI, resourceName);
+                var ScannedItems = new JSDOTransport(serviceURI, catalogURI, resourceName,"",cFilter);
+   
+                // fuction for grid details
+                $('#grid15').kendoGrid({
+                    // define transports as the class functions 
+                    autoBind: true,
+                    dataSource: {                 
+                        transport:ScannedItems.transport,     
+                        schema: {
+                            model: {
+                                id: '_id'              
+                            },
+                        pageSize: 10,
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true,
+                        },                    
+                        error: function(e) {
+                            alert("error");
+                            var obj, error = "";                    
+                            console.log('Error: ', e);
+                            if (e.xhr && e.xhr.response) {
+                                try {
+                                    obj = JSON.parse(e.xhr.response);
+                                    if (obj._retVal) {
+                                        error = obj._retVal;
+                                    }
+                                    alert("Error returned from server: " + error);
+                                }
+                                catch(e) {
+                                    alert("Error returned from server: " + xhr.response);                    
+                                }
+                            }                
+                        },
+                        requestEnd: function(e) {
+                            //alert(e.response.Errors); 
+                            if (e.type == "read") {  
+                                                               
+                            }
+                            
+                            if (e.type == "update") {
+                                window.alert("Record updated successfully.");
+                                $("#grid7").data("kendoGrid").dataSource.read();    
+                            }
+                        }, 
+                        success: function () {
+                                   
+                        },
+                        gridComplete: function () {
+                                   
+                        },
+                    },       
+                    change: function(e) {              
+                        
+                    },
+                    dataBound : function () {                                              
+                       
+                       DisplayNoResultsFound($('#grid15')); 
+                       
+                       var grid = $("#grid15").data("kendoGrid"); 
+                       grid.select('tr:eq(1)'); 
+                        
+                       pcSTBLTransactionType = "LocationComplete";
+                                                                                                                    
+                    },
+
+                    // Grid controls and config
+                    
+                    //height: 680,
+                    //height: 350,
+                    //pageSize: 10,	 
+                    //serverPaging: false,                    
+                    groupable: false,
+                    //sortable: true,
+                    //reorderable: true,
+                    resizable: true,
+                    selectable: true,
+                    navigatable: true,                    
+                    filterable: false,
+                    scrollable: true,
+                    columnMenu: false,
+                    reorderable: true,
+                    pageable: {
+                      refresh: true,
+                      pageSizes: false,
+                      pageSize: 10,	                      
+                      buttonCount: 4
+                   },
+
+                   //noRecords: {
+                   //  template: "No data available to display."  
+                   //},
+                   editable: 'popup',
+                   edit: function(e) {                       
+                   
+                       
+                   },
+                   columns: [                      
+                       //{ command: "edit", title: "", width: "150px" },                       
+                       { field: 'ItemCode',  title: 'Item Code', editable: false, type: 'int', width: 150 },                       
+                       { field: 'Identifier',  title: 'Ident', type: 'int', width: 60 },
+                       { field: 'SubIdentifier',  title: 'SubIdent', type: 'int', width: 80 },
+                       { field: 'Storage',  title: stblStoragePrompt, type: 'int', width: 65 },  
+                       { field: 'SubStorage',  title: stblSubStoragePrompt, type: 'int', width: 65 },
+                       { field: 'cActualCount',  title: 'ActCount', type: 'int', width: 85 },
+                       //{ field: 'QuantityOnHand',  title: 'Qty OnHand', type: 'int', width: 50 }, not needed DH
+                       { field: 'UserIdStamp',  title: 'UserID', type: 'int', width: 70 },
+                       //{ field: 'CountNumber',  title: 'CountNo', type: 'int', width: 50 },
+                       { title: '&nbsp;', width: '100%' }
+                   ]
+                
+                });
+
+            } 
+            
+            function LocationComplete() {
+                var answer = confirm("Are you sure you wish to complete the count for this location?")
+                
+                if (answer) {
+                    
+                    $.ajax({
+                      method: "POST",    
+                      url: server_path + service_path + "StocktakeByLocationUpdate",     
+                      //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/StocktakeByLocationUpdate", 
+                      //url: "http:///MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/movetolostrolls",
+                      beforeSend: function() {
+                          time = new Date();
+
+                      },
+                      headers: {
+                        "accept": "application/json",
+                        "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                      }, 
+                      data: {
+                          "TransactionType": pcSTBLTransactionType,
+                          "SheetNumber": pcSTBLSheetNumber,
+                          "InEntity" : pcSTBLInEntity,
+                          "ItemCode" : "",
+                          "OldWarehouseCode" : pcSTBLWarehouseCode,
+                          "NewWarehouseCode" : pcSTBLWarehouseCode,
+                          "Identifier" : "",
+                          "SubIdentifier" : "",
+                          "OldStorage" : pcSTBLStorage,
+                          "NewStorage" : pcSTBLStorage,
+                          "OldSubStorage" : pcSTBLSubStorage,
+                          "NewSubStorage" : pcSTBLSubStorage,
+                          "QuantityOnHand" : "",
+                          "QuantityToMove" : "",
+                          "UserId" : gcUseridStamp,
+                          "UserPassword" : gcUserPassowrd
+                                             
+
+                      },                         
+                      success: function (response) {                          
+                           //alert(new Date() - time + "ms"); 
+
+                          }, 
+                          async: false,
+                          timeout: 1000,
+                          error: function(request, error) {
+
+                            if (error == "timeout") {                                
+                                $.ajax(this);
+                            } else {
+                                window.alert("Failed to reach server!")    
+                            }
+
+                          }  
+                    })
+                    .done(function(response) {   
+
+                        var ValidationMsg = (response.ValidationResponse[0].pcError);
+
+                        if (ValidationMsg == "") {
+                            alert("Update Successful");
+
+                           DestroySTBLScannedItems();
+                           kendo.mobile.application.navigate("components/formStockTakeByLocation/view.html");
+                      
+                        } else {
+                            erroraudio.play();
+                            alert(ValidationMsg); 
+                        }                      
+
+                    });
+                } else {
+                    
+                }
+               
+            }
+            
+            function DestroySTBLScannedItems() {
+                $("#grid15").empty(); // empty the Grid content (inner HTML)
+            }
+            
+            function exit () {
+                 DestroySTBLScannedItems();
+                 kendo.mobile.application.navigate("components/formStockTakeByLocationUpdate/view.html");
+            }
+            
+            
+            // funciton to display message in grid when no records found
+            function DisplayNoResultsFound(grid) {
+                // Get the number of Columns in the grid
+                var dataSource = grid.data("kendoGrid").dataSource;
+                var colCount = grid.find('.k-grid-header colgroup > col').length;
+
+                // If there are no results display info to user
+                if (dataSource._view.length == 0) {
+                    grid.find('.k-grid-content tbody')
+                        .append('<tr class="kendo-data-row"><td colspan="' + colCount + '" style="text-align:center"><b>No items have been scanned.</b></td></tr>');
+                }
+
+                // Get visible row count
+                var rowCount = grid.find('.k-grid-content tbody tr').length;
+
+                // If the row count is less that the page size add in the number of missing rows
+                if (rowCount < dataSource._take) {
+                    var addRows = dataSource._take - rowCount;
+                    for (var i = 0; i < addRows; i++) {
+                        grid.find('.k-grid-content tbody').append('<tr class="kendo-data-row"><td>&nbsp;</td></tr>');
+                    }
+                }
+            }
+            
+            //function to change grid size depending on orientation
+            function resizeGrids() {
+                var windowHeight = $(window).height();
+                var newHeight = (windowHeight - $("p").first().outerHeight() * 3) / 2;
+                var resizables = $(".adaptive-grid-wrapper, .adaptive-grid-wrapper > .km-pane-wrapper, .k-grid");                                 
+
+                resizables.height(newHeight);
+
+                $("#grid15").data("kendoGrid").resize();
+
+            }
+             
+            $(window).on("orientationchange",function(){
+                
+                resizeGrids();
+                
+            });            
+
+        </script> 
+    </div>
+    
+</div>

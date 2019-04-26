@@ -1,0 +1,220 @@
+<div data-role="view" data-title="Scan To Work - Cutter Consumed Quantity" data-layout="main-nonav" data-model="app.formScanToWorkCutterConQty" data-show="onShowSTWCConQty" data-after-show="afterShowSTWCConQty">
+    <div id="formScanToWorkModel" class="form-view">        
+        <form>   
+            
+            <ul class="form-content" data-role="listview" data-style="inset">
+                <li>
+                    <label>Work Order
+                        <input id="stwcConQtyWorkOrder" placeholder="Work Order" type="text" readonly>
+                    </label>
+                </li>
+                <li>
+                    <label>Item Code
+                        <input id="stwcConQtyItemCode" placeholder="Item Code" type="text" readonly>
+                    </label>
+                </li>
+                <li>
+                    <label id="stwcIdentifierLabel">Identifier</label>
+                    <input id="stwcConQtyPiece" type="text" readonly>                    
+                </li>
+                <li>
+                    <label id="stwcSubIdentifierLabel">SubIdentifier</label>
+                    <input id="stwcConQtySubIdentifier" type="text" readonly>                    
+                </li>                
+                <li>
+                    <label>Reason Code
+                        <input id="stwcConQtyReason" type="text" placeholder="If Required">
+                    </label>
+                </li>
+                <li>
+                    <label>Quantity Consumed</label>
+                        <input id="stwcConQtyConQty" placeholder="Quantity" type="number" min="0"   >
+
+                </li>
+            </ul>
+            <hr>
+            <div class="button-group button-group-vertical">                   
+                <a class="regular" data-role="button" data-click="onClickQty" data-icon="tick">Confirm</a>  
+                <a class="primary" data-role="button" href="components/formScanToWorkITBC/view.html" data-icon="cross">Exit</a>                                  
+            </div> 
+        </form>
+        
+        <!-- START_CUSTOM_CODE_formPutAwayModel -->
+        <script>
+            
+            function onShowSTWCConQty() {                             
+                  
+                document.getElementById("stwcConQtyWorkOrder").value = pcWoNumber;
+                document.getElementById("stwcConQtyItemCode").value = pcItemCode;
+                document.getElementById("stwcConQtyPiece").value = pcIdentifier;
+                document.getElementById("stwcConQtySubIdentifier").value = pcSubIdentifier;
+
+                pcReasonCode = "";
+                document.getElementById("stwcConQtyReason").value = "";
+               
+                          
+                $("#stwcConQtyPiece").show();
+                $("#stwcIdentifierLabel").show(); 
+                $("#stwcConQtySubIdentifier").show();                    
+                $("#stwcSubIdentifierLabel").show();                 
+                
+                var identifierhidden = false;
+                var subidentifierhidden = false;                 
+            
+                getSTWCItemsItemClassDetails();                            
+                
+                document.getElementById("stwcConQtyConQty").value = pcQtyAlloc;
+                //document.getElementById("stwcConQtyConQty").step = stwcStepDefault;   
+                
+                //stwcConQtyConQty.decimals = stwcUomUnit;
+                                
+                $('#stwcIdentifierLabel').text(stwcIdentLabel);
+                $('#stwcSubIdentifierLabel').text(stwcSubIdentLabel);                 
+                
+                if (stwcItemClass == "1") {                    
+                   var identifierhidden = true;
+                   var subidentifierhidden = true;  
+                    
+                   //$('#stwcIdentifierLabel').text(stwcIdentLabel);
+                   //$('#stwcSubIdentifierLabel').text(stwcSubIdentLabel);                    
+                    
+                   $("#stwcConQtyPiece").hide();
+                   $("#stwcIdentifierLabel").hide(); 
+                   $("#stwcConQtySubIdentifier").hide();                    
+                   $("#stwcSubIdentifierLabel").hide();
+                } 
+                if (stwcItemClass == "4") {
+                   var subidentifierhidden = true;   
+                    
+                   $("#stwcConQtySubIdentifier").hide(); 
+                   $("#stwcSubIdentifierLabel").hide();
+                }               
+                
+
+            }
+        
+            function onClickQty() {
+
+                    pcSchedQty = document.getElementById("stwcConQtyConQty").value;                     
+                    pcReasonCode = document.getElementById("stwcConQtyReason").value;
+
+                    // ajax request to move to lost roles
+                    $.ajax({
+                      method: "POST",    
+                      //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/STWmovetolostrolls", 
+                      url: server_path + service_path + "STWmovetolostrolls",
+                      //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/STWmovetolostrolls",
+                      beforeSend: function() {
+                              time = new Date();
+                      },
+                      headers: {
+                        "accept": "application/json",
+                        "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                      }, 
+                      data: {
+                          "TransactionType": pcTransactionType,
+                          "EntityWip": pcEntityWip,
+                          "ReasonCode" : pcReasonCode,
+                          "WoNumber" : pcWoNumber,
+                          "OperationSequence" : pcOperationSequence,
+                          "InEntity" : pcInEntity,
+                          "ItemCode" : pcItemCode,
+                          "WarehouseCode" : pcWarehouseCode,
+                          "Identifier" : pcIdentifier,
+                          "SubIdentifier" : pcSubIdentifier,
+                          "OldStorage" : pcStorage,
+                          "NewStorage" : "",
+                          "OldSubStorage" : pcSubStorage,
+                          "NewSubStorage" : "",
+                          "SchedQty" : pcSchedQty,
+                          "QtyAlloc" : pcQtyAlloc,
+                          "AllocIdentifier" : "",
+                          "AllocSubIdentifier" : "",
+                          "UserId" : gcUseridStamp,
+                          "UserPassword" : gcUserPassowrd                                                    
+                      },                         
+                      success: function (response) {                          
+                           //alert(new Date() - time + "ms");                                                     
+                          }, 
+                          async: false,
+                          //timeout: 1000,
+                          error: function(request, error) {
+                            
+                            if (error == "timeout") {                                
+                                $.ajax(this);
+                            } else {
+                                //window.alert("Failed to reach server!")    
+                            }
+
+                          }  
+                    })
+                    .done(function(response) {            
+                       
+                        var ValidationMsg = (response.ValidationResponse[0].pcError);
+                        //$("#grid6").data("kendoGrid").dataSource.read();
+                        
+                        if (ValidationMsg == "") {
+                            alert("Update Successful");
+                            kendo.mobile.application.navigate("components/formScanToWorkITBC/view.html");
+                            //kendo.mobile.application.navigate("components/formScanToWorkCutter/view.html");
+                            
+                            //get alternative items
+                            //changePiece();
+                        } else {
+                            alert(ValidationMsg);
+                            if (ValidationMsg.substring(0, 9) == "Component") {
+                                 kendo.mobile.application.navigate("components/formScanToWorkITBC/view.html");
+                            } 
+                            
+                        }
+                                                
+                        
+                    });                
+                
+            }
+            function getSTWCItemsItemClassDetails() {
+                             
+                $.ajax({
+                  method: "POST",                               
+                    url: server_path + service_path + "getitemclassdetails", 
+                  //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getitemclassdetails",
+                  headers: {
+                    "accept": "application/json",
+                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                  }, 
+                  data: {
+                    "InEntity" : gcInEntity,
+                    "ItemCode": pcItemCode,
+                    "WarehouseCode": pcWarehouseCode
+                  },                         
+                  success: function (result) {
+                    //  window.alert("Success!")
+                  },
+                  async: false,
+                  error: function(data) {
+                    window.alert("Failed to reach server!")
+                  }  
+                })
+                .done(function(response) {      
+                    
+                    stwcItemClass     = (response.ItemClassDet[0].ItemClass);
+                    stwcIdentLabel    = (response.ItemClassDet[0].IdentifierLabel);
+                    stwcSubIdentLabel = (response.ItemClassDet[0].SubIdentifierLabel);
+                    stwcValidItem     = (response.ItemClassDet[0].ValidItemCode);
+                    stwcValidItemMsg  = (response.ItemClassDet[0].ValidItemMsg);
+                    stwcUomUnit       = (response.ItemClassDet[0].UomUnit); 
+                    stwcQtyDefault    = (response.ItemClassDet[0].DefaultQty);
+                    //stwcStepDefault   = (response.ItemClassDet[0].DefaultStep);        
+
+
+                });                 
+            }             
+            
+            
+
+        </script> 
+        <!-- END_CUSTOM_CODE_formPutAwayModel -->
+    </div>
+    <!-- START_CUSTOM_CODE_formPutAway -->
+    <!-- END_CUSTOM_CODE_formPutAway -->
+</div>

@@ -1,0 +1,115 @@
+<div data-role="view" data-title="Scan To Work - Cutter" data-layout="main-nonav" data-model="app.formScanToWorkCutter" data-show="onShowSTWC" data-after-show="afterShowSTWC">
+    <div id="formScanToWorkModel" class="form-view">        
+        <form>   
+            
+            <ul class="form-content" data-role="listview" data-style="inset">
+                <li>
+                    <label>Work Order
+                        <input id="stwcWorkOrder" placeholder="Work Order" type="text" autofocus>
+                    </label>
+                </li>
+            </ul>
+            <hr>
+            <div class="button-group button-group-vertical">                   
+                <!--a data-role="button" id="btnconfirm" data-click="onLeaveSTWCWorkOrder">Confirm</a -->   
+                <a class="primary" data-role="button" href="components/formScanToWork/view.html">Exit</a>  
+            </div>     
+        </form>
+        
+        <!-- START_CUSTOM_CODE_formPutAwayModel -->
+        <script>
+        
+            function onShowSTWC() {
+       
+                pcIssueRemainingComp = "no";
+                
+                stwpwonumber = "";
+                
+                document.getElementById("stwcWorkOrder").value = ""
+            }
+     
+            function afterShowSTWC() {
+                document.getElementById("stwcWorkOrder").focus();
+            }            
+            
+            $(document).ready(function() {
+                
+                $("form").submit(function() { return false; });
+                
+                $('#stwcWorkOrder').keydown(function(event) {
+                    if (event.keyCode == 13) {
+                          onLeaveSTWCWorkOrder();
+                          //document.getElementById("btnconfirm").click();
+                    }
+                });                                                
+            }); 
+            
+            function onLeaveSTWCWorkOrder() {
+                
+                if (document.getElementById("stwcWorkOrder").value == "") {
+                    window.alert("You must enter a work order number!");
+                    document.getElementById("stwcWorkOrder").focus();
+                    return false;
+                }
+                $.ajax({
+                  method: "POST",                               
+                  //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/wostatusvalidation", 
+                  url: server_path + service_path + "wostatusvalidation",   
+                  //url: "http://mcjs-hperpapp1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/wostatusvalidation",
+                  headers: {
+                    "accept": "application/json",
+                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                  }, 
+                  data: {
+                    "EntityWip" : gcEntityWip,
+                    "WoNumber": document.getElementById("stwcWorkOrder").value 
+                  },                         
+                  success: function (result) {
+
+                  },
+                  async: false,
+                  error: function(data) {
+                    window.alert("Failed to reach server!")
+                  }  
+                })
+                .done(function(response) {                                 
+                    //logic after request and response 
+                    var cWoStatus       = (response.WoStatusValidation[0].WoStatus);
+                    var cStatusPassed   = (response.WoStatusValidation[0].StatusPassed);
+                    var cStatusErrorMsg = (response.WoStatusValidation[0].StatusErrorMsg);
+                    var cAvailAllocs    = (response.WoStatusValidation[0].AvailAllocs);
+                    
+                    ///window.alert("cstatuspassed =" + cStatusPassed + " cwostatus = " + cWoStatus );
+                    
+                    if (cStatusPassed == "No") {
+                        window.alert(cStatusErrorMsg); 
+                        document.getElementById("stwcWorkOrder").value = "";
+                    }
+                    if (cStatusPassed == 'Yes') {
+                        stwcwonumber = document.getElementById("stwcWorkOrder").value; 
+                        }
+                    if (cStatusPassed == 'Yes' && cWoStatus == 'Released' && cAvailAllocs == 'Yes') {
+                        kendo.mobile.application.navigate("components/formScanToWorkITBC/view.html");     
+                    } 
+                    if (cStatusPassed == "Yes" && cWoStatus == "Released" && cAvailAllocs == "No") {
+                        //kendo.mobile.application.navigate("components/formScanToWorkITBC/view.html");     
+                        window.alert("There are no allocations available for Work Order " + document.getElementById("stwcWorkOrder").value + ".");
+                        document.getElementById("stwcWorkOrder").value = ""
+                        document.getElementById("stwcWorkOrder").focus();
+                    }                                              
+                    if (cStatusPassed == "Yes" && cWoStatus == "Rework") {                                
+                            kendo.mobile.application.navigate("components/formScanToWorkITBCRework/view.html");                                                     
+                    }                         
+                        
+
+                });  
+            }
+            
+            
+
+        </script> 
+        <!-- END_CUSTOM_CODE_formPutAwayModel -->
+    </div>
+    <!-- START_CUSTOM_CODE_formPutAway -->
+    <!-- END_CUSTOM_CODE_formPutAway -->
+</div>

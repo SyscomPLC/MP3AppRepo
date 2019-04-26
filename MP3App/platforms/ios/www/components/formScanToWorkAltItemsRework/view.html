@@ -1,0 +1,308 @@
+<div data-role="view" data-title="Alternative Items For Rework" data-layout="main-nonav" data-model="app.formScanToWorkAltItemsRework" data-show="onShowSTWCAltItemsRework" data-after-show="afterShowSTWCAltItemsRework">
+    <div id="formScanToWorkAltItemsReworkModel" class="form-view">        
+        <form>   
+            <ul class="form-content" data-role="listview" data-style="inset">
+                <li>
+                    <label>Work Order
+                        <input id="stwairwWorkOrder" placeholder="Work Order" type="text">
+                    </label>
+                </li>
+                <li>
+                    <label>Warehouse
+                        <input id="stwairwWarehouse" placeholder="Warehouse" type="text">
+                    </label>
+                </li>
+                <li>
+                    <label>Quantity Required
+                        <input id="stwairwQtyReq" placeholder="Operation" type="text">
+                    </label>
+                </li>
+            </ul>
+            <hr>
+            <div id="example">
+                <div id="grid10"></div>          
+            </div>
+            <hr>
+            <div class="button-group button-group-vertical">                   
+                <a class="regular" data-role="button" data-click="alternativeItemsRW" data-icon="tick">Confirm</a>   
+                <a class="primary" data-role="button" href="components/formScanToWorkITBPRework/view.html" data-click="DestroySTWAltItemsRWGrid" data-icon="cross">Exit</a>  
+            </div>     
+        </form>
+        
+        <!-- START_CUSTOM_CODE_formPutAwayModel -->
+        <script>
+                   
+            function onShowSTWCAltItemsRework() {   ;
+                
+                document.getElementById("stwairwWorkOrder").value = pcWoNumber
+                document.getElementById("stwairwWarehouse").value = pcWarehouseCode;
+                document.getElementById("stwairwQtyReq").value = pcSchedQty;
+                                
+                var cFilter = "WHERE WarehouseCode = " + '"' + pcWarehouseCode + '"' + " AND ItemCode BEGINS " + '"' +
+                              pcItemCode + '"' + " AND QuantityOnHand > 0";
+
+                //var serviceURI   = "http://spectre.int.syscom.plc.uk:8980/STWAltItemsService",
+                var serviceURI   = server_path + (deploy_method=="deployed" ? deploy_service : "/STWAltItemsService"),        
+                    catalogURI   = serviceURI + "/static/STWAltItemsService.json",            
+                    resourceName = 'STWAltItems';                    
+               
+                var STWAltItems = new JSDOTransport(serviceURI, catalogURI, resourceName,"",cFilter)                
+
+                // fuction for grid details
+                $('#grid10').kendoGrid({
+                    // define transports as the class functions 
+                    autoBind: true,
+                    dataSource: {                 
+                        transport:STWAltItems.transport,     
+                        schema: {
+                            model: {
+                                id: '_id',                            
+                                fields: {
+                                    // assign fields to read only in edit mode
+                                    //InEntity: { editable: false},
+                                    UserIdStamp: {editable: true},
+                                    WoNumber: { editable: false}, 
+                                    WarehouseCode: { editable: false},
+                                    ItemCode: { editable: false}, 
+                                    Identifier: { editable: false},
+                                    //UserField15: {editable: false},
+                                    cSchedQty: { editable: false},
+                                    cQtyAlloc: { editable: false},
+                                    //Substorage: { editable: false},
+                                    //UserField13: { editable: true},
+                                    Storage: { editable: false},
+                                    SubStorage:{ editable: false}
+                                    //SubIdentifier: { editable: false},                                
+                                    //UserField11: { editable: false},
+                                    //UserField14: { editable: true}
+                                }
+                            },
+                        pageSize: 10,
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true,
+                        },                    
+                        error: function(e) {
+                            alert("error");
+                            var obj, error = "";                    
+                            console.log('Error: ', e);
+                            if (e.xhr && e.xhr.response) {
+                                try {
+                                    obj = JSON.parse(e.xhr.response);
+                                    if (obj._retVal) {
+                                        error = obj._retVal;
+                                    }
+                                    alert("Error returned from server: " + error);
+                                }
+                                catch(e) {
+                                    alert("Error returned from server: " + xhr.response);                    
+                                }
+                            }                
+                        },
+                        requestEnd: function(e) {
+                            //alert(e.response.Errors); 
+                            if (e.type == "read") {  
+                                                               
+                            }
+                            
+                            if (e.type == "update") {
+                                window.alert("Record updated successfully.");
+                                $("#grid10").data("kendoGrid").dataSource.read();    
+                            }
+                        }, 
+                        success: function () {
+                                   
+                        },
+                        gridComplete: function () {
+                                   
+                        },
+                    },       
+                    change: function(e) {
+                        
+                        var dataItem = this.dataItem(this.select());
+                                                
+                        //pcTransactionType = "AlternativeRolls"; set in function
+                        //pcEntityWip = dataItem.EntityWip; already set
+                        //pcReasonCode = dataItem.ReasonCode; already set
+                        //pcWoNumber = dataItem.WoNumber; already set
+                        //pcOperationSequence = dataItem.OperationSequence; already set
+                        //pcInEntity = dataItem.InEntity; already set
+                        pcItemCode = dataItem.ItemCode;
+                        pcWarehouseCode = dataItem.WarehouseCode;
+                        pcIdentifier = dataItem.Identifier;
+                        pcSubIdentifier = dataItem.SubIdentifier;
+                        pcOldStorage = pcStorage;
+                        pcOldSubStorage = pcSubStorage;    
+                        pcNewStorage = dataItem.Storage;
+                        pcNewSubStorage = dataItem.SubStorage;
+                        //pcSchedQty = dataItem.cSchedQty; already set
+                        //pcQtyAlloc = dataItem.cQtyAlloc; already set
+                                                
+                        
+                    },
+                    dataBound : function () {                                              
+                       
+                       DisplayNoResultsFound($('#grid10')); 
+                       
+                       var grid = $("#grid10").data("kendoGrid"); 
+                       grid.select('tr:eq(1)');                          
+                                                                                                                    
+                    },
+
+                    // Grid controls and config
+                    
+                    //height: 680,
+                    //height: 350,
+                    //pageSize: 10,	 
+                    //serverPaging: false,                    
+                    groupable: false,
+                    //sortable: true,
+                    //reorderable: true,
+                    resizable: true,
+                    selectable: "row",
+                    navigatable: true,                    
+                    filterable: false,
+                    scrollable: true,
+                    columnMenu: false,
+                    reorderable: true,
+                    pageable: {
+                      refresh: true,
+                      pageSizes: true,
+                      pageSize: 10,	                      
+                      buttonCount: 4
+                   },
+
+                   //noRecords: {
+                   //  template: "No data available to display."  
+                   //},
+                   editable: 'popup',
+                   edit: function(e) {                       
+                   
+                       
+                   },
+                   columns: [                      
+                       //{ command: "edit", title: "", width: "150px" },                       
+                       { field: 'InEntity',  title: 'InEntity', type: 'int', width: 60, hidden: false },
+                       { field: 'ItemCode',  title: 'Item Code', editable: false, type: 'int', width:140, locked: false, lockable: false }, 
+                       { field: 'Identifier',  title: 'Lot', type: 'int', width: 50 },
+                       { field: 'UserField11',  title: 'On Avail', type: 'string', width: 80 },  
+                       { field: 'Storage',  title: 'Lctn', type: 'int', width: 50, locked: false, lockable: false },
+                       { field: 'Substorage',  title: 'S-lctn', type: 'int', width: 65, locked: false, lockable: false },                       
+                       { title: '&nbsp;', width: '100%' }
+                   ]
+                
+                });
+
+            }  
+            
+            function DestroySTWAltItemsRWGrid() {
+                $("#grid10").empty(); // empty the Grid content (inner HTML)
+            }
+            
+            function alternativeItemsRW () {
+                //pcTransactionType = "AlternativeRolls";
+                var answer = confirm("Are you sure you wish to select this piece?")
+                if (answer) {
+                                        
+                    // ajax request to move to lost roles
+                    $.ajax({
+                      method: "POST",    
+                      url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/STWmovetolostrolls", 
+                      //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/STWmovetolostrolls",
+                      beforeSend: function() {
+                          time = new Date();
+                      },
+                      headers: {
+                        "accept": "application/json",
+                        "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                      }, 
+                      data: {
+                          "TransactionType": pcTransactionType,
+                          "EntityWip": pcEntityWip,
+                          "ReasonCode" : pcReasonCode,
+                          "WoNumber" : pcWoNumber,
+                          "OperationSequence" : pcOperationSequence,
+                          "InEntity" : pcInEntity,
+                          "ItemCode" : pcItemCode,
+                          "WarehouseCode" : pcWarehouseCode,
+                          "Identifier" : pcIdentifier,
+                          "SubIdentifier" : pcSubIdentifier,
+                          "OldStorage" : pcOldStorage,
+                          "NewStorage" : pcNewStorage,
+                          "OldSubStorage" : pcOldSubStorage,
+                          "NewSubStorage" : pcNewSubStorage,
+                          "SchedQty" : pcSchedQty,
+                          "QtyAlloc" : pcQtyAlloc,
+                          "AllocIdentifier" : pcAllocIdentifier,
+                          "AllocSubIdentifier" : pcAllocSubIdentifier                          
+                      },                         
+                      success: function (response) {                          
+                           //alert(new Date() - time + "ms"); 
+                           
+                          }, 
+                          async: false,
+                          timeout: 1000,
+                          error: function(request, error) {
+                          
+                            if (error == "timeout") {                                
+                                $.ajax(this);
+                            } else {
+                                window.alert("Failed to reach server!")    
+                            }
+
+                          }  
+                    })
+                    .done(function(response) {   
+                        //$("#grid6").data("kendoGrid").dataSource.read();
+                        
+                        var ValidationMsg = (response.ValidationResponse[0].pcError);
+                        //$("#grid6").data("kendoGrid").dataSource.read();
+                        
+                        if (ValidationMsg == "") {
+                            alert("Update Successful");
+                            
+                            DestroySTWAltItemsRWGrid();
+                            kendo.mobile.application.navigate("components/formScanToWorkITBPRework/view.html");
+                            
+                        } else {
+                            alert(ValidationMsg);
+                            
+                        }                      
+
+                    });              
+                }
+                else {                    
+                    
+                }
+            }
+            
+            // funciton to display message in grid when no records found
+            function DisplayNoResultsFound(grid) {
+                // Get the number of Columns in the grid
+                var dataSource = grid.data("kendoGrid").dataSource;
+                var colCount = grid.find('.k-grid-header colgroup > col').length;
+
+                // If there are no results display info to user
+                if (dataSource._view.length == 0) {
+                    grid.find('.k-grid-content tbody')
+                        .append('<tr class="kendo-data-row"><td colspan="' + colCount + '" style="text-align:center"><b>No Results Found! Please refine your search.</b></td></tr>');
+                }
+
+                // Get visible row count
+                var rowCount = grid.find('.k-grid-content tbody tr').length;
+
+                // If the row count is less that the page size add in the number of missing rows
+                if (rowCount < dataSource._take) {
+                    var addRows = dataSource._take - rowCount;
+                    for (var i = 0; i < addRows; i++) {
+                        grid.find('.k-grid-content tbody').append('<tr class="kendo-data-row"><td>&nbsp;</td></tr>');
+                    }
+                }
+            } 
+
+        </script> 
+        <!-- END_CUSTOM_CODE_formPutAwayModel -->
+    </div>
+    <!-- START_CUSTOM_CODE_formPutAway -->
+    <!-- END_CUSTOM_CODE_formPutAway -->
+</div>

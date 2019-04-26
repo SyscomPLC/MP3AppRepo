@@ -1,0 +1,502 @@
+that i
+<div data-role="view" data-title="Stock Take By Location" data-layout="main-nonav" data-model="app.formStockTakeByLocationUpdate"
+    data-show="onShowSTBLUpd" data-after-show="app.formStockTakeByLocationUpdate.afterShow">
+    <div id="formStockTakeByLocationUpdateModel" class="form-view">
+        <form>
+            <div id="example2">
+                <div id="grid2"></div>
+            </div>
+            <hr>
+            <ul class="form-content" data-role="listview" data-style="inset">
+                <li> <label id="stblupditemcodelabel">Item Code
+                        <input id="stblupditemcode" placeholder="Item Code" type="text" autofocus>
+                    </label> </li>
+                <li> <label id="stblupdpiecelabel">Piece</label> <input id="stblupdpiece" type="text"> </li>
+                <li> <label id="stblupdsubidentlabel">Sub Identifier</label> <input id="stblupdsubident" type="text"> </li>
+            </ul>
+            <ul class="form-content" data-role="listview" data-style="inset">
+                <li> <label id="stblupdquantitylabel">Quantity</label> <input id="stblupdquantity" placeholder="Quantity" type="number"
+                        min="0"> </li>
+            </ul>
+            <hr>
+            <div class="button-group button-group-vertical stocktakefixed"> <a class="regular" data-role="button" data-click="ViewScannedItems" data-icon="search">View Scanned Items</a>                <a class="regular" data-role="button" data-click="onEnterSTBLUpdQuantity" data-icon="tick">Confirm Quantity</a>                <a class="primary" data-role="button" data-click="ClearFieldValues" href="components/formStockTakeByLocation/view.html"
+                    data-icon="cross">Exit Count Sheet</a> </div>
+        </form>
+        <!-- START_CUSTOM_CODE_formStockTakeByLocationUpdateModel -->
+        <script>
+            //function to execute on show of view (initialize)
+            function onShowSTBLUpd() {     
+    
+               // bring back grid results
+               
+               document.getElementById("stblupdpiece").value = "";
+               document.getElementById("stblupdsubident").value = "";
+               document.getElementById("stblupdquantity").value = "";
+
+               document.getElementById("stblupditemcode").focus();
+                
+               $("#stblupdpiece").hide();
+               $("#stblupdpiecelabel").hide();
+               $("#stblupdsubident").hide();
+               $("#stblupdsubidentlabel").hide(); 
+               $("#stblupdquantity").hide();
+               $("#stblupdquantitylabel").hide();
+               /*  */
+              
+                var cFilter = "WHERE InEntity = " + '"' + gcInEntity + '"' + " AND WarehouseCode = " + '"' + passstblwarehouse + '"'
+                              + " AND Storage = " + '"' + passstblstorage + '"' + " AND SubStorage = " + '"' + passstblsubstorage + '"';
+
+                //parkinsons                
+                //var serviceURI   = "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/CountSheetDetailService",
+                //    catalogURI   = serviceURI + "/static/CountSheetDetailService.json",            
+                //    resourceName = 'CountSheetDetail';                 
+                
+                //Syscom - Spectre                
+                var serviceURI   = serviceURI   = server_path + (deploy_method=="deployed" ? deploy_service :  "/CountSheetDetailService"),                                                 
+                    catalogURI   = serviceURI + "/static/CountSheetDetailService.json",            
+                    resourceName = 'CountSheetDetail'; 
+                
+                var CountSheetDetail = new JSDOTransport(serviceURI, catalogURI, resourceName, "", cFilter);
+                
+                $('#grid2').kendoGrid({
+                    // define transports as the class functions 
+                    autoBind: true,
+                    dataSource: {
+                    transport: CountSheetDetail.transport,
+                    schema: {
+                        model: {
+                            id: '_id',
+                        }
+                    /*pageSize: 10,
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true,
+                    filter: { field: "ItemCode", operator: "eq", value: "DAN300LRED"}   */                  
+                    },
+
+                    error: function(e) {
+                        var obj, error = "";
+                    
+                        console.log('Error: ', e);
+                        if (e.xhr && e.xhr.response) {
+                            try {
+                                obj = JSON.parse(e.xhr.response);
+                                if (obj._retVal) {
+                                    error = obj._retVal;
+                                }
+                                alert("Error returned from server: " + error);
+                            }
+                            catch(e) {
+                                alert("Error returned from server: " + xhr.response);                    
+                            }
+                        }                
+                    }},
+                    change: function(e) {
+                        var dataItem = this.dataItem(this.select());
+                        
+                                             
+                        pcSTBLTransactionType = "Count";
+                        pcSTBLSheetNumber = dataItem.SheetNumber; 
+                        pcSTBLInEntity = gcInEntity; 
+                        pcSTBLWarehouseCode = dataItem.WarehouseCode;
+                        pcSTBLStorage = dataItem.Storage;
+                        pcSTBLSubStorage = dataItem.SubStorage;
+                        pcSTBLSheetDate = dataItem.SheetDate; 
+                        pcSTBLCountNumber = dataItem.CountNumber;
+                        
+                    },                    
+                    dataBound : function () {
+                       var grid = $("#grid2").data("kendoGrid"); 
+                       grid.select('tr:eq(1)'); 
+                       document.getElementById("stblupditemcode").focus(); 
+                    },
+                    
+                    height: 70,
+                    //height: 350,
+                    //pageSize: 10,	 
+                    //serverPaging: true,
+                    // setting up most of the grid functionality is as easy as toggling properties on and off
+                    //groupable: true,
+                    //sortable: true,
+                    //reorderable: true,
+                    resizable: true,						
+                    selectable: true,
+                    filterable: false,
+                    //scrollable: true,
+                    /*pageable: {
+                      refresh: true,
+                      pageSizes: true,
+                      pageSize: 20,	                      
+                      buttonCount: 4
+                   },*/
+
+                   //noRecords: {
+                   //  template: "No data available to display."  
+                   //},
+                   //editable: 'popup',
+                   columns: [
+                       { field: 'SheetNumber',  title: 'Sheet Number', editable: false, type: 'int', width: 120 },
+                       { field: 'WarehouseCode',  title: 'Warehouse', type: 'int', width: 120 },  
+                       { field: 'Storage',  title: stblStoragePrompt, type: 'int', width: 120 },  
+                       { field: 'SubStorage',  title: stblSubStoragePrompt, type: 'int', width: 120 },  
+                       { field: 'SheetDate',  title: 'Sheet Date', type: 'int', width: 120 },
+                       { field: 'CountNumber',  title: 'To Warehouse', type: 'int', hidden: true },
+                       { title: '&nbsp;', width: '100px' }
+                   ]
+                   
+                
+                });             
+                
+               /*  */ 
+                
+               //SetLabels();
+            }    
+            
+            $(document).ready(function() {                   
+               
+                
+                //$('#stblwarehouse').change(requiredStorage).change();
+
+                $('#stblupditemcode').keydown(function(event) {
+                    if (event.keyCode == 13) {
+                        onEnterSTBLUpdItemCode();    
+                        
+                    }
+                });   
+                
+
+                $('#stblupdpiece').keydown(function(event) {
+                    if (event.keyCode == 13) { 
+                        onEnterSTBLUpdPiece();    
+                        
+                    }
+                });  
+                
+                $('#stblupdsubident').keydown(function(event) {
+                    if (event.keyCode == 13) {
+                        onEnterSTBLUpdSubIdentifier();    
+                        
+                    }
+                });
+                
+                $('#stblupdquantity').keydown(function(event) {
+                    if (event.keyCode == 13) {
+                        pcSTBLQuantityToMove = document.getElementById("stblupdquantity").value;
+                        onEnterSTBLUpdQuantity();    
+                        
+                    }
+                });                               
+            });                 
+      
+            // function to clear all field values
+            function ClearFieldValues() {
+                document.getElementById("stblupditemcode").value = "";
+                document.getElementById("stblupdpiece").value = "";
+                document.getElementById("stblupdsubident").value = "";
+                document.getElementById("stblupdquantity").value = "";
+                document.getElementById("stblupditemcode").focus();
+                DestroySTBLCntSheet();
+                
+            }  
+   
+            // function to clear all field values
+            function ClearFieldValuesForItem() {
+                document.getElementById("stblupdpiece").value = "";
+                document.getElementById("stblupdsubident").value = "";
+                document.getElementById("stblupdquantity").value = "";
+                document.getElementById("stblupditemcode").focus();
+                $("#stblupdpiece").hide();
+                $("#stblupdpiecelabel").hide();
+                $("#stblupdsubident").hide();
+                $("#stblupdsubidentlabel").hide(); 
+                $("#stblupdquantity").hide();
+                $("#stblupdquantitylabel").hide();                
+                
+                
+            }              
+            
+            function onEnterSTBLUpdItemCode () {
+           
+                ClearFieldValuesForItem();
+              
+                getItemClassDetails();
+                
+                if (stblUpdValidItem == "yes") {                                      
+                    
+                    if (stblUpdItemClass == "1") {
+                        
+                        //check for rescanned item
+                        pcSTBLIdentifier = "";
+                        pcSTBLSubIdentifier = "";
+                        RescannedItemsCheck();
+                         
+                        $("#stblupdquantity").show();
+                        $("#stblupdquantitylabel").show(); 
+                        
+                        $('#stblupdquantitylabel').text(stblUpdLabelForQty);
+                       
+                        document.getElementById("stblupdquantity").focus();
+                       
+                    } else if (stblUpdItemClass == "2" || stblUpdItemClass == "3" || stblUpdItemClass == "5") {
+                        
+                        $("#stblupdpiece").show();
+                        $("#stblupdpiecelabel").show();
+                        $("#stblupdsubident").show();
+                      	$("#stblupdsubidentlabel").show(); 
+                       	$("#stblupdquantity").show();
+                        $("#stblupdquantitylabel").show();                        
+                        
+                        $('#stblupdpiecelabel').text(stblUpdIdentLabel);
+                        $('#stblupdsubidentlabel').text(stblUpdSubIdentLabel);
+                        $('#stblupdquantitylabel').text(stblUpdLabelForQty);
+
+                        document.getElementById("stblupdpiece").focus();
+
+                    } else if (stblUpdItemClass == "4") {
+                        
+                        $("#stblupdpiece").show();
+                        $("#stblupdpiecelabel").show();
+ 
+                       	$("#stblupdquantity").show();
+                        $("#stblupdquantitylabel").show();
+                        
+                        $('#stblupdpiecelabel').text(stblUpdIdentLabel);
+                        $('#stblupdquantitylabel').text(stblUpdLabelForQty);                                               
+
+                        
+                        document.getElementById("stblupdpiece").focus();
+
+                    }                    
+                } else {
+              
+                    erroraudio.play();
+                    window.alert(stblUpdValidItemMsg);
+
+                }
+            
+
+            }
+            
+            function onEnterSTBLUpdPiece () {
+
+                /*if (document.getElementById("stblupdpiece").value == document.getElementById("stblupditemcode").value) {
+                    
+                    document.getElementById("stblupdpiece").value = "";
+                    document.getElementById("stblupdpiece").focus();
+
+                    window.alert(stblUpdIdentLabel + " must not be the same as scanned item. Please re-enter");
+                } else {
+                    if (stblUpdItemClass == "2" || stblUpdItemClass == "3" || stblUpdItemClass == "5") {
+                        document.getElementById("stblupdsubident").focus();    
+                    } else {
+                    //check for rescanned item
+                    pcSTBLIdentifier = document.getElementById("stblupdpiece").value;
+                    pcSTBLSubIdentifier = "";
+                    RescannedItemsCheck();
+                        
+                    document.getElementById("stblupdquantity").focus();   
+                    }                   
+                }*/
+
+                if (stblUpdItemClass == "2" || stblUpdItemClass == "3" || stblUpdItemClass == "5") {
+                    document.getElementById("stblupdsubident").focus();    
+                } else {
+                  //check for rescanned item
+                  pcSTBLIdentifier = document.getElementById("stblupdpiece").value;
+                  pcSTBLSubIdentifier = "";
+                  RescannedItemsCheck();
+                    
+                  document.getElementById("stblupdquantity").focus();   
+                }
+                
+            }
+            
+            function onEnterSTBLUpdSubIdentifier () {
+               
+               pcSTBLIdentifier = document.getElementById("stblupdpiece").value;
+               pcSTBLSubIdentifier = document.getElementById("stblupdsubident").value;                
+               RescannedItemsCheck();
+               document.getElementById("stblupdquantity").focus(); 
+            }
+            
+            function onEnterSTBLUpdQuantity() { 
+                
+                pcSTBLQuantityToMove = document.getElementById("stblupdquantity").value;            
+                $.ajax({
+                  method: "POST",    
+                  //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/StocktakeByLocationUpdate", 
+                  url: server_path + service_path + "StocktakeByLocationUpdate",   
+                  //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/STWmovetolostrolls",
+                  beforeSend: function() {
+                      time = new Date();
+                      
+                  },
+                  headers: {
+                    "accept": "application/json",
+                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                  }, 
+                  data: {
+                      "TransactionType": pcSTBLTransactionType,
+                      "SheetNumber": pcSTBLSheetNumber,
+                      "InEntity" : pcSTBLInEntity,
+                      "ItemCode" : document.getElementById("stblupditemcode").value,
+                      "OldWarehouseCode" : pcSTBLWarehouseCode,
+                      "NewWarehouseCode" : pcSTBLWarehouseCode,
+                      "Identifier" : document.getElementById("stblupdpiece").value,
+                      "SubIdentifier" : document.getElementById("stblupdsubident").value,
+                      "OldStorage" : pcSTBLStorage,
+                      "NewStorage" : pcSTBLStorage,
+                      "OldSubStorage" : pcSTBLSubStorage,
+                      "NewSubStorage" : pcSTBLSubStorage,
+                      "QuantityOnHand" : pcSTBLQuantityToMove,
+                      "QuantityToMove" : pcSTBLQuantityToMove,
+                      "UserId" : gcUseridStamp,
+                      "UserPassword" : gcUserPassowrd
+                      
+                  },                         
+                  success: function (response) {                          
+                       //alert(new Date() - time + "ms"); 
+                  
+                      }, 
+                      async: false,
+                      timeout: 1000,
+                      error: function(request, error) {
+
+                        if (error == "timeout") {                                
+                            $.ajax(this);
+                        } else {
+                            window.alert("Failed to reach server!")    
+                        }
+
+                      }  
+                })
+                .done(function(response) {   
+                                        
+                    var ValidationMsg = (response.ValidationResponse[0].pcError);
+                    
+                    if (ValidationMsg.match("Update Successful") || ValidationMsg.match("WARNING")  ) {
+                       alert(ValidationMsg); 
+
+                       $("#stblupdpiece").hide();
+                       $("#stblupdpiecelabel").hide();
+                       $("#stblupdsubident").hide();
+                       $("#stblupdsubidentlabel").hide(); 
+                       $("#stblupdquantity").hide();
+                       $("#stblupdquantitylabel").hide();
+                        
+                       document.getElementById("stblupditemcode").value = "";
+                       document.getElementById("stblupdpiece").value = "";
+                       document.getElementById("stblupdsubident").value = "";
+                       document.getElementById("stblupdquantity").value = "";
+                       document.getElementById("stblupditemcode").focus();                        
+
+                    } else {
+                        erroraudio.play();
+                        alert(ValidationMsg);
+                        document.getElementById("stblupdquantity").focus(); 
+                    }                      
+                    
+                });
+               
+            }
+            
+            function getItemClassDetails () {
+                $.ajax({
+                  method: "POST",                               
+                  //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/getitemclassdetails", 
+                  //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getitemclassdetails",
+                  url: server_path + service_path + "getitemclassdetails", 
+                  headers: {
+                    "accept": "application/json",
+                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                  }, 
+                  data: {
+                    "InEntity" : gcInEntity,
+                    "ItemCode": document.getElementById("stblupditemcode").value,
+                    "WarehouseCode": pcSTBLWarehouseCode 
+                  },                         
+                  success: function (result) {
+                      //window.alert("Success!")
+                  },
+                  async: false,
+                  error: function(data) {
+                    window.alert("Failed to reach server!")
+                  }  
+                })
+                .done(function(response) {                                 
+                    stblUpdItemClass     = (response.ItemClassDet[0].ItemClass);
+                    stblUpdIdentLabel    = (response.ItemClassDet[0].IdentifierLabel);
+                    stblUpdSubIdentLabel = (response.ItemClassDet[0].SubIdentifierLabel);
+                    stblUpdLabelForQty   = (response.ItemClassDet[0].LabelForQuantity);
+                    stblUpdValidItem     = (response.ItemClassDet[0].ValidItemCode);
+                    stblUpdValidItemMsg  = (response.ItemClassDet[0].ValidItemMsg);
+                    //stblUomUnit          = (response.ItemClassDet[0].UomUnit); 
+                    //stblQtyDefault       = (response.ItemClassDet[0].DefaultQty);
+                    //stblStepDefault      = (response.ItemClassDet[0].DefaultStep);                    
+                    
+                    //document.getElementById("stblupdquantity").placeholder = stblQtyDefault; 
+                    
+                    //stblupdquantity.step = stblStepDefault;   
+                    
+                    //stblupdquantity.decimals = stblUomUnit;
+                    
+                });                 
+            }
+            
+            function RescannedItemsCheck() {
+                
+                $.ajax({
+                  method: "POST",                               
+                  //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/rescanneditemscheck",
+                  url: server_path + service_path + "rescanneditemscheck",
+                  //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getitemclassdetails",
+                  headers: {
+                    "accept": "application/json",
+                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                  }, 
+                  data: {
+                    "InEntity" : gcInEntity,
+                    "WarehouseCode": pcSTBLWarehouseCode, 
+                    "SheetNumber" : pcSTBLSheetNumber,
+                    "ItemCode": document.getElementById("stblupditemcode").value,
+                    "Storage" : pcSTBLStorage,
+                    "SubStorage" : pcSTBLSubStorage,
+                    "Identifier" : pcSTBLIdentifier, 
+                    "SubIdentifier" : pcSTBLSubIdentifier, 
+                    "CountNumber" : pcSTBLCountNumber 
+                    
+                  },                         
+                  success: function (result) {
+                      //window.alert("Success!")
+                  },
+                  async: false,
+                  error: function(data) {
+                    window.alert("Failed to reach server!")
+                  }  
+                })
+                .done(function(response) {                                 
+                    var testrsiItemScanned = (response.RescannedItems[0].ItemScanned);
+                    var testrsiQuantity    = (response.RescannedItems[0].Quantity);
+                    
+                    if (testrsiItemScanned == "yes") {
+                       document.getElementById("stblupdquantity").value = testrsiQuantity;
+                    }
+
+                });                 
+                
+            }
+            
+            function DestroySTBLCntSheet() {
+                $("#grid2").empty(); // empty the Grid content (inner HTML)
+            }
+            
+            function ViewScannedItems() {
+                kendo.mobile.application.navigate("components/formStockTakeByLocationVSI/view.html");
+                DestroySTBLCntSheet();
+            }
+        </script>
+        <!-- END_CUSTOM_CODE_formStockTakeByLocationUpdateModel -->
+    </div>
+    <!-- START_CUSTOM_CODE_formStockTakeByLocationUpdate -->
+    <!-- END_CUSTOM_CODE_formStockTakeByLocationUpdate -->
+</div>

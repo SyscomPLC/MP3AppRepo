@@ -1,0 +1,230 @@
+<div data-role="view" data-title="Item Class Stock Enquiry" data-layout="main-nonav" data-model="app.formItemClassStockInfo" data-show="onShowICSI" data-after-show="afterShowICSI">
+    <div id="formItemClassStockInfoModel" class="form-view"  
+        <form>
+            <ul class="form-content" data-role="listview" data-style="inset">
+                <li>
+                    <label>Warehouse
+                        <input id="warehouse" placeholder="Warehouse">                        
+                    </label>
+                </li>                                         
+            </ul>   
+            <ul class="form-content" data-role="listview" data-style="inset">
+                <li>
+                    <label>Item Code
+                        <input data-bind="value: formItemClassStockInfoModel.fields.icsiItemcode" id="itemcode" placeholder="Item Code" type="text" required ValidationMessage="TEST VALIDATION">                       
+                    </label>
+                </li> 
+            </ul>            
+            <hr> 
+            <div class="button-group button-group-vertical">                 
+                <a class="regular" data-role="button" data-click="onEnterItemCode" data-icon="tick">Confirm</a> 
+                <a class="primary" data-role="button" href="components/formMenu/view.html" data-icon="cross">Cancel</a>               
+            </div>
+        </form>               
+        <!-- START_CUSTOM_CODE_formItemClassStockInfoModel -->   
+        <script>            
+            
+            function onShowICSI() {                 
+                
+                if (icsiFirstLoad == "yes") {
+                    getWhsData();    
+                }
+                
+                //document.getElementById("itemcode").focus();
+                
+                document.getElementById("itemcode").value = ""; 
+            }     
+            
+            function afterShowICSI() {
+                
+                document.getElementById("itemcode").focus();
+                
+                if (icsiFirstLoad == "yes") {
+                   
+                   $("#warehouse").val(gcDefaultWhs).data("kendoDropDownList").text(gcDefaultWhs); 
+                    
+                   icsiFirstLoad = "no";
+                }
+                
+                
+            }
+            
+            $(document).ready(function() {
+                
+                $('#warehouse').change(warehousechange).change();
+                
+                $('#itemcode').keydown(function(event) {
+                    if (event.keyCode == 13) { 
+                        
+                        onEnterItemCode();
+                                                                       
+                    }
+                }); 
+                
+             });
+            
+            function warehousechange() {
+                document.getElementById("itemcode").focus();
+            }
+            
+            function onEnterItemCode() {
+                
+                var cItemCode = document.getElementById("itemcode").value;
+                
+                if (cItemCode == "") {
+                    erroraudio.play();
+                    alert("You must enter an Item Code.");
+                } else {
+                    passwarehouse = document.getElementById("warehouse").value;
+                    passitemcode = document.getElementById("itemcode").value;
+           
+                    $.ajax({
+                      method: "POST",                               
+                      //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/wostatusvalidation", 
+                      url: server_path + service_path + "itemclassstockvalidation",   
+                      //url: "http://mcjs-hperpapp1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/wostatusvalidation",
+                      headers: {
+                        "accept": "application/json",
+                        "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                      }, 
+                      data: {
+                        "InEntity" : gcInEntity,
+                        "ItemCode": passitemcode,
+                        "WarehouseCode" : passwarehouse
+                      },                         
+                      success: function (result) {
+                         // window.alert("Success!")
+                      },
+                      async: false,
+                      error: function(data) {
+                        erroraudio.play();
+                        window.alert("Failed to reach server!")
+                      }  
+                    })
+                    .done(function(response) {                                 
+                        //logic after request and response 
+                        var cItemClassStockValid = (response.ItemClassStockValidation[0].ItemClassStockValid);
+                        var cErrorMsg            = (response.ItemClassStockValidation[0].ErrorMsg);                        
+                        
+                        if (cItemClassStockValid == "no") {                            
+                            erroraudio.play();                          
+                            alert(cErrorMsg);
+                            
+                            document.getElementById("itemcode").value = "";
+                            document.getElementById("itemcode").focus();                
+                             
+                        } else {
+                            kendo.mobile.application.navigate("components/formItemClassStockInfoResults/view.html"); 
+                        }
+
+                    });                      
+                }
+                
+                
+                
+            }
+            
+            function getWhsData() {
+              
+                $.ajax({
+                  method: "POST",                               
+                  //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/getallwarehouses", 
+                  //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getwarehouses",
+                  url: server_path + service_path + "getallwarehouses",
+                  headers: {
+                    "accept": "application/json",
+                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                  }, 
+                  data: {
+                    "DefWhs"  : gcDefaultWhs
+                  },                         
+                  success: function (result) {
+                  },
+                  async: false,
+                  error: function(data) {
+                    window.alert("Failed to reach server!")
+                  }  
+                })
+                .done(function(response) {                                
+                    $("#warehouse").kendoDropDownList({
+                       dataSource: response,
+                       animation: {
+                        close: {
+                          effects: "fadeOut zoom:out",
+                          duration: 300
+                        },
+                        open: {
+                          effects: "fadeIn zoom:in",
+                          duration: 300
+                        },                         
+                       },
+                       index: 0
+                       //change: function(e) {
+                       //    requiredStorage();
+                       //}
+                    });
+                });                                 
+            }            
+            
+            // function to assign returned value
+            function assignFieldVal (scannedval) { 
+                document.getElementById("itemcode").value = scannedval;
+                autoClickConfirm();
+            
+            }
+            // function performed on click of conform button
+            function ClickConfirm () {
+                passwarehouse = document.getElementById("warehouse").value;
+                passitemcode = document.getElementById("itemcode").value; 
+                //kendo.mobile.application.navigate("components/formItemClassStockInfoResults/view.html"); 
+            }
+            // function to auto click confirm (after item is scanned)
+            function autoClickConfirm () {
+                passwarehouse = document.getElementById("warehouse").value;
+                passitemcode = document.getElementById("itemcode").value;
+                kendo.mobile.application.navigate("components/formItemClassStockInfoResults/view.html");                 
+            }
+            // function to return element with focus
+            function getFocus(fieldfocus) {                 
+               document.getElementById(fieldfocus).focus();                   
+            }
+            // function to assign returned value
+            function focustest() {               
+                var test1 = document.getElementById("output-element").innerHTML;                    
+            }             
+            // function to output field id that has focus
+            function GetFocusFieldId(e) {  
+            
+                //var outputElement = document.getElementById('output-element');                    
+                var selectedField = document.activeElement;  
+                fieldId = selectedField.id;
+                if (fieldId != "kendoUiMobileApp") {
+                    outputElement.innerHTML = selectedField.id;   
+
+                }
+                else {
+                    outputElement.innerHTML = selectedField.id; 
+                    alert("A button has been pressed so the output will not change.");
+                }                    
+
+            }            
+            // function to clear all field values
+            function ClearFieldValues() {
+                document.getElementById("warehouse").value = "";
+                document.getElementById("itemcode").value = "";
+                document.getElementById("output-element").value = "";
+
+            } 
+                         
+            // event listner to get field id of field with focus
+            document.getElementById("warehouse").addEventListener("mouseup", GetFocusFieldId, false);
+            document.getElementById("itemcode").addEventListener("mouseup", GetFocusFieldId, false);           
+
+
+        </script>
+        <!-- END_CUSTOM_CODE_formItemClassStockInfoModel -->
+        
+    </div>
+    <!-- START_CUSTOM_CODE_formItemClassStockInfo -->    
+    <!-- END_CUSTOM_CODE_formItemClassStockInfo -->
+</div>

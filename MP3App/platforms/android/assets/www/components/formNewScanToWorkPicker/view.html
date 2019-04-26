@@ -1,0 +1,112 @@
+<div data-role="view" data-title="Scan To Work - Picker" data-layout="main-nonav" data-model="app.formNewScanToWorkPicker" data-show="onShowSTWP" data-after-show="afterShowSTWP">
+    <div id="formNewScanToWorkPickerModel" class="form-view">        
+        <form>   
+            
+            <ul class="form-content" data-role="listview" data-style="inset">
+                <li>
+                    <label>Work Order
+                        <input id="stwpWorkOrder" placeholder="Work Order" type="text" autofocus>
+                    </label>
+                </li>
+            </ul>
+            <hr>
+            <div class="button-group button-group-vertical">                   
+                <a data-role="button" data-click="onLeaveSTWPWorkOrder">Confirm</a>   
+                <a class="primary" data-role="button" href="components/formScanToWork/view.html">Exit</a>  
+            </div>     
+        </form>
+        
+        <!-- START_CUSTOM_CODE_formPutAwayModel -->
+        <script>
+            
+            function onShowSTWP() {
+                alert("new scan to work picker");
+                
+                stwpwonumber = "";
+                
+                document.getElementById("stwpWorkOrder").value = "";
+            }
+            
+            $(document).ready(function() {
+                
+                $('#stwpWorkOrder').keydown(function(event) {
+                    if (event.keyCode == 13) {
+                        alert("errorcheck");
+                        //onLeaveSTWPWorkOrder();
+                        
+                     }
+                });                
+                
+            });
+
+            function onLeaveSTWPWorkOrder() {
+
+                if (document.getElementById("stwpWorkOrder").value == "") {
+                    window.alert("You must enter a work order number!");
+                    document.getElementById("stwpWorkOrder").focus();
+                    return false;
+                }
+                           
+                $.ajax({
+                  method: "POST",                               
+                  //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/wostatusvalidation", 
+                  //url: "http://mcjs-hperpapp1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/wostatusvalidation",
+                  url: server_path + service_path + "wostatusvalidation",
+                  headers: {
+                    "accept": "application/json",
+                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                  }, 
+                  data: {
+                    "EntityWip" : gcEntityWip,
+                    "WoNumber": document.getElementById("stwpWorkOrder").value 
+                  },                         
+                  success: function (result) {
+                      //window.alert("Success!")
+                  },
+                  async: false,
+                  error: function(data) {
+                    window.alert("Failed to reach server!")
+                  }  
+                })
+                .done(function(response) {                                 
+                    //logic after request and response
+                    var cWoStatus       = (response.WoStatusValidation[0].WoStatus);
+                    var cStatusPassed   = (response.WoStatusValidation[0].StatusPassed);
+                    var cStatusErrorMsg = (response.WoStatusValidation[0].StatusErrorMsg);
+                    var cAvailAllocs    = (response.WoStatusValidation[0].AvailAllocs);
+                    
+                                       
+                    if (cStatusPassed == "No") {                        
+                        window.alert(cStatusErrorMsg); 
+                    } else {       
+                        
+                        stwpwonumber = document.getElementById("stwpWorkOrder").value;
+                        
+                        if (cWoStatus == "Released") {
+                            
+                            kendo.mobile.application.navigate("components/formScanToWorkITBP/view.html");
+                            
+                        } else {
+                            kendo.mobile.application.navigate("components/formScanToWorkITBPRework/view.html");
+                        }                        
+                                              
+                    }
+                    
+                });                 
+                
+            }  
+            
+            $(document).ready(function() {     
+               
+                $('#stwpWorkOrder').keydown(function(event) {
+
+                });
+               
+            });
+
+        </script> 
+        <!-- END_CUSTOM_CODE_formPutAwayModel -->
+    </div>
+    <!-- START_CUSTOM_CODE_formPutAway -->
+    <!-- END_CUSTOM_CODE_formPutAway -->
+</div>

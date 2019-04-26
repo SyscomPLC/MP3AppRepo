@@ -1,0 +1,279 @@
+<div data-role="view" data-title="Stock Take By Location" data-layout="main-nonav" data-model="app.formStockTakeByLocation" data-show="onShowSTBL" data-after-show="onAfterShowSTBL">
+    <div id="formStockTakeByLocationModel" class="form-view">
+        <form>
+            <ul class="form-content" data-role="listview" data-style="inset">
+                <li>
+                    <label id="stblwarehouselabel">Warehouse
+                        <input id="stblwarehouse" class="kendodrop" placeholder="Warehouse" type="text">
+                    </label>
+                </li>
+                <li>
+                    <label id="stblstoragelabel">Location</label>
+                        <input id="stblstorage"  type="text">
+                    
+                </li>
+                <li>
+                    <label id="stblsubstoragelabel">Sub Location</label>
+                        <input id="stblsubstorage"  type="text">
+                </li>
+            </ul>
+            <hr>
+            <div class="button-group button-group-vertical">
+                <!--<a data-role="button" data-click="LoadCamera" data-icon="camera">Scan</a>-->
+                <a id="stblConfirm" class="regular" data-role="button"  data-click="autoClickConfirmSTBL" data-icon="tick">Confirm</a>    
+                <a class="primary"" data-role="button" href="components/formMenu/view.html" data-click="ClearFieldValues" data-icon="cross">Cancel</a>
+                            
+            </div>
+        </form>
+        <!-- START_CUSTOM_CODE_formStockTakeByLocationModel -->
+        
+        <script> 
+            //function to execute on show of view (initialize)
+            function onShowSTBL() {
+                
+               //window.alert("in on show stbl"); 
+                 
+               document.getElementById("stblstorage").value = "";
+               document.getElementById("stblsubstorage").value = "";
+               passstblwarehouse = "";
+               passstblstorage = "";
+               passstblsubstorage = ""; 
+               document.getElementById("stblwarehouse").value = gcDefaultWhs; 
+               
+                
+            }
+            // initially focus on storage
+            function onAfterShowSTBL() {
+                  getSTBLWhsData(); 
+                  requiredSTBLStorage();  
+                
+                  document.getElementById("stblstorage").focus(); 
+            }
+            
+            function onLeaveSTBLStorage() {
+                if (stblSubStorageReq == "no") {
+                    //autoClickConfirmSTBL();    
+                }
+            }
+            
+            function onLeaveSTBLSubStorage() {
+                
+            }
+            
+            $(document).ready(function() {  
+                
+                getSTBLWhsData();
+
+                $('#stblwarehouse').change(requiredSTBLStorage).change();
+
+                $('#stblstorage').keydown(function(event) {
+                    if (event.keyCode == 13) {
+                       
+                        if (stblSubStorageReq == "yes") {
+                            document.getElementById("stblsubstorage").focus();
+                        } else {
+                            // check for open count sheet record
+                            autoClickConfirmSTBL();
+                        }
+                        
+                     }
+                });
+                
+                $('#stblsubstorage').keydown(function(event) {
+                    if (event.keyCode == 13) {
+                        // check for open count sheet record
+                        autoClickConfirmSTBL();
+                     }
+                });
+               
+            });
+            
+            function getSTBLWhsData() {
+                
+                $.ajax({
+                  method: "POST",                               
+                  //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/getallwarehouses", 
+                  //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getallwarehouses",
+                  url: server_path + service_path + "getallwarehouses",
+                  headers: {
+                    "accept": "application/json",
+                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                  }, 
+                  data: {
+                    "DefWhs"  : gcDefaultWhs
+                  },                         
+                  success: function (result) {
+                  },
+                  async: false,
+                  error: function(data) {
+                    window.alert("Failed to reach server!")
+                  }  
+                })
+                .done(function(response) {                                
+                    $("#stblwarehouse").kendoDropDownList({
+                       dataSource: response,
+                       animation: {
+                        close: {
+                          effects: "fadeOut zoom:out",
+                          duration: 300
+                        },
+                        open: {
+                          effects: "fadeIn zoom:in",
+                          duration: 300
+                        },                         
+                       },
+                       index: 0
+                       //change: function(e) {
+                       //    requiredStorage();
+                       //}
+                    });
+                });                                 
+            }
+            
+            function requiredSTBLStorage () {
+
+                var SelectedWhs = document.getElementById("stblwarehouse").value;
+                ClearSTBLFieldValues();
+                passstblwarehouse = SelectedWhs;
+                $.ajax({
+                   method: "POST",                               
+                   //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/getstoragedetails", 
+                   //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getstoragedetails",
+                   url: server_path + service_path + "getstoragedetails", 
+                   headers: {
+                     "accept": "application/json",
+                     "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                   }, 
+                   data: {
+                     "WarehouseCode"  : SelectedWhs
+                   },                         
+                   success: function (result) {
+                   },
+                   async: false,
+                   error: function(data) {
+                     window.alert("Failed to reach server!")
+                   }  
+                 })
+                 .done(function(response) {    
+                     //window.alert(response.StorageDetails[0].StorageLabel); 
+                    
+                     stblStorageReq	       = (response.StorageDetails[0].StorageRequired);
+                     stblSubStorageReq     = (response.StorageDetails[0].SubStorageRequired);  
+                     stblStoragePrompt     = (response.StorageDetails[0].StorageLabel);
+                     stblSubStoragePrompt  = (response.StorageDetails[0].SubStorageLabel);
+
+                     if (stblStorageReq == "no") {
+                         $("#stblstorage").hide();
+                		 $("#stblstoragelabel").hide();
+                     } else {
+                         $("#stblstorage").show();
+                		 $("#stblstoragelabel").show();  
+                         
+                         $('#stblstoragelabel').text(stblStoragePrompt);
+                     }
+                     if (stblSubStorageReq == "no") {
+                         $("#stblsubstorage").hide();
+                		 $("#stblsubstoragelabel").hide();
+                     } else {    
+                         $("#stblsubstorage").show();
+                		 $("#stblsubstoragelabel").show();     
+                         
+                         $('#stblsubstoragelabel').text(stblSubStoragePrompt);    
+                     }
+                    
+                     if ((stblStorageReq == "no") && (stblSubStorageReq == "no")) {
+                        
+                        autoClickConfirmSTBL();
+                     } else {
+                        document.getElementById("stblstorage").focus();  
+                     };
+                });
+            }
+
+
+            // funciton to clear field values
+            function ClearSTBLFieldValues() {
+                //window.alert("clearing field values");
+                //document.getElementById("stblwarehouse").value = ""; 
+                document.getElementById("stblstorage").value = "";
+                document.getElementById("stblsubstorage").value = "";
+                document.getElementById("stblstorage").focus();
+                passstblstorage    = " "; 
+                passstblsubstorage = " "; 
+                
+            }
+
+           // function performed on click of conform button
+           function ClickConfirmSTBL () {
+               passstblwarehouse = document.getElementById("stblwarehouse").value;
+               passstblstorage = document.getElementById("stblstorage").value; 
+               passstblsubstorage = document.getElementById("stblsubstorage").value; 
+               // check open count sheet can be found
+           }
+
+            
+           // function to auto click confirm (after item is scanned)
+           function autoClickConfirmSTBL () {
+               passstblwarehouse = document.getElementById("stblwarehouse").value;
+               passstblstorage = document.getElementById("stblstorage").value;
+               passstblsubstorage = document.getElementById("stblsubstorage").value;
+               
+              // avoid nulls
+              if (passstblstorage == "") {
+                  passstblstorage = " ";                  
+              } 
+              if (passstblsubstorage == "") {
+                  passstblsubstorage = " ";                  
+              }                
+               
+               // check open count sheet can be found
+               $.ajax({
+                  method: "POST",                               
+                  //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/getvalidcountsheet", 
+                  //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getwarehouses",
+                  url: server_path + service_path + "getvalidcountsheet",  
+                  headers: {
+                    "accept": "application/json",
+                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                  }, 
+                  data: {
+                    "InEntity"  : gcInEntity,
+                    "WarehouseCode" : passstblwarehouse,
+                    "Storage" : passstblstorage,
+                    "SubStorage" : passstblsubstorage
+                  },                         
+                  success: function (result) {
+                  },
+                  async: false,
+                  error: function(data) {
+                    window.alert("Failed to reach server!")
+                  }  
+                })
+                .done(function(response) {                                
+                    var valcountsheet   = (response.CountSheetValidation[0].ValCntSheetFound);
+                    var sheetnumber     = (response.CountSheetValidation[0].SheetNumber);
+                    var errormsg        = (response.CountSheetValidation[0].ErrorMsg);
+                    
+                    if (valcountsheet == "yes") {
+                        passstblsheetnumber = sheetnumber;
+                        kendo.mobile.application.navigate("components/formStockTakeByLocationUpdate/view.html");
+                    } else {
+                        erroraudio.play();
+                        alert(errormsg);
+                        document.getElementById("stblstorage").value = "";
+                        document.getElementById("stblsubstorage").value = "";
+                        passstblstorage    = " "; 
+                        passstblsubstorage = " "; 
+                        document.getElementById("stblstorage").focus();
+                    }
+                });                 
+                //kendo.mobile.application.navigate("components/formStockTakeByLocationUpdate/view.html");              
+           }               
+          
+
+        </script>
+        <!-- END_CUSTOM_CODE_formStockTakeByLocationModel -->
+    </div>
+    <!-- START_CUSTOM_CODE_formStockTakeByLocation -->
+    <!-- END_CUSTOM_CODE_formStockTakeByLocation -->
+</div>

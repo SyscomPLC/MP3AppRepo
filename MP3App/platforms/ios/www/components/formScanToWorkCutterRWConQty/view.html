@@ -1,0 +1,287 @@
+<div data-role="view" data-title="Consumed Quantity Rework" data-layout="main-nonav" data-model="app.formScanToWorkCutterConQty" data-show="onShowSTWCRWConQty" data-after-show="afterShowSTWCRWConQty">
+    <div id="formScanToWorkModel" class="form-view">        
+        <form>   
+            
+            <ul class="form-content" data-role="listview" data-style="inset">
+                <li>
+                    <label>Work Order
+                        <input id="stwcrwConQtyWorkOrder" placeholder="Work Order" type="text" readonly>
+                    </label>
+                </li>
+                <li>
+                    <label>Item Code
+                        <input id="stwcrwConQtyItemCode" placeholder="Item Code" type="text" readonly>
+                    </label>
+                </li>
+                <li>
+                    <label>Piece
+                        <input id="stwcrwConQtyPiece" type="text" readonly>
+                    </label>
+                </li>
+                <li>
+                    <label>Reason Code
+                        <input id="stwcrwReasonCode" type="text">
+                    </label>
+                </li>                
+                <li>
+                    <label>Quantity Consumed
+                        <input id="stwcrwConQtyConQty" placeholder="Quantity" type="text">
+                    </label>
+                </li>
+            </ul>
+            <hr>
+            <div class="button-group button-group-vertical">                   
+                <a class="regular" data-role="button" data-click="onClickQty" data-icon="tick">Confirm</a> 
+            </div>     
+            <div class="button-group button-group-vertical">  
+                <a class="primary" data-role="button" href="components/formScanToWorkITBC/view.html" data-icon="cross">Exit</a>                                  
+            </div> 
+        </form>
+        
+        <!-- START_CUSTOM_CODE_formPutAwayModel -->
+        <script>
+            
+            function onShowSTWCRWConQty() {      
+                
+                alert(pcWoNumber + pcItemCode + pcIdentifier);
+                      
+                document.getElementById("stwcrwConQtyWorkOrder").value = pcWoNumber;
+                document.getElementById("stwcrwConQtyItemCode").value = pcItemCode;
+                document.getElementById("stwcrwConQtyPiece").value = pcIdentifier;
+                document.getElementById("stwcrwConQtyConQty").value = pcSchedQty;
+                
+                alert("test");
+                
+                //drop down list logic
+                    
+                    /*$.ajax(
+                    {
+                        type: "POST",                               
+                        url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/getwarehouses", 
+                        //data: "WarehouseCode",
+                        dataType: "json",
+                        async: false,
+                        error: function () {
+                            alert("error");
+                        },
+                        success: function (result) {
+                           alert("success");
+                        }
+                    })
+                    .done (function(response) {
+
+                         //alert(JSON.stringify(response));
+                         //response = (JSON.stringify(response));
+
+                         
+                         //for (i = 0; i <= numrecs; i++) {
+                         //    alert(response.ttWarehouse[i].WarehouseCode);
+                         //    warehouse.push(response.ttWarehouse[i].WarehouseCode);  
+                        alert(response);
+                         
+                             $("#stwcrwReasonCode").kendoDropDownList({
+                                  //dataSource: {
+                                  //   data: warehouse  
+                                  //}, 
+                                  //dataSource: ["01", "IN"],
+                                  dataSource: response,
+                                  animation: {
+                                   close: {
+                                     effects: "fadeOut zoom:out",
+                                     duration: 300
+                                   },
+                                   open: {
+                                     effects: "fadeIn zoom:in",
+                                     duration: 300
+                                   }
+                                  }
+                             });
+                             
+                         //}
+                         
+                         //$("#UserField15").data("kendoDropDownList").dataSource.data(response);
+                         //$("#UserField15").data("kendoDropDownList").dataSource.fetch();
+
+                    });*/
+
+                }                   
+ 
+            
+        
+            function onClickQty() {
+                
+                    pcQtyAlloc = document.getElementById("stwcrwConQtyConQty").value;
+                
+                    // ajax request to move to lost roles
+                    $.ajax({
+                      method: "POST",    
+                      //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/STWmovetolostrolls", 
+                      url: server_path + service_path + "STWmovetolostrolls",
+                      //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/STWmovetolostrolls",
+                      beforeSend: function() {
+                          alert("before send");
+                          time = new Date();
+                      },
+                      headers: {
+                        "accept": "application/json",
+                        "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                      }, 
+                      data: {
+                          "TransactionType": pcTransactionType,
+                          "EntityWip": pcEntityWip,
+                          "ReasonCode" : pcReasonCode,
+                          "WoNumber" : pcWoNumber,
+                          "OperationSequence" : pcOperationSequence,
+                          "InEntity" : pcInEntity,
+                          "ItemCode" : pcItemCode,
+                          "WarehouseCode" : pcWarehouseCode,
+                          "Identifier" : pcIdentifier,
+                          "SubIdentifier" : pcSubIdentifier,
+                          "Storage" : pcStorage,
+                          "SubStorage" : pcSubStorage,
+                          "SchedQty" : pcSchedQty,
+                          "QtyAlloc" : pcQtyAlloc,
+                          "AllocIdentifier" : "",
+                          "AllocSubIdentifier" : ""
+                      },                         
+                      success: function (response) {                          
+                           //alert(new Date() - time + "ms");                                                     
+                          }, 
+                          async: false,
+                          //timeout: 1000,
+                          error: function(request, error) {
+                            
+                            if (error == "timeout") {                                
+                                $.ajax(this);
+                            } else {
+                                window.alert("Failed to reach server!")    
+                            }
+
+                          }  
+                    })
+                    .done(function(response) {            
+                        
+                        var ValidationMsg = (response.ValidationResponse[0].pcError);
+                        //$("#grid6").data("kendoGrid").dataSource.read();
+                        
+                        if (ValidationMsg == "") {
+                            alert("Update Successful");
+                            kendo.mobile.application.navigate("components/formScanToWorkITBC/view.html");
+                            
+                            //get alternative items
+                            //changePiece();
+                        } else {
+                            alert(ValidationMsg);
+                            
+                        }
+                                                
+                        
+                    });                
+                
+            }
+            
+            // funciton to display message in grid when no records found
+            function DisplayNoResultsFound(grid) {
+                // Get the number of Columns in the grid
+                var dataSource = grid.data("kendoGrid").dataSource;
+                var colCount = grid.find('.k-grid-header colgroup > col').length;
+
+                // If there are no results display info to user
+                if (dataSource._view.length == 0) {
+                    
+                    if (pcIssueRemainingComp == "yes") {}
+                        var answer = confirm("Are you sure you wish to move to lost rolls?")
+                        if (answer) {
+
+                            pcTransactionType = "RemainingComponets";
+                            // ajax request to move to lost roles
+                            $.ajax({
+                              method: "POST",    
+                              //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/STWmovetolostrolls", 
+                              //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/STWmovetolostrolls",
+                              url: server_path + service_path + "STWmovetolostrolls",  
+                              beforeSend: function() {
+                                  alert("before send");
+                                  time = new Date();
+                              },
+                              headers: {
+                                "accept": "application/json",
+                                "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                              }, 
+                              data: {
+                                  "TransactionType": pcTransactionType,
+                                  "EntityWip": pcEntityWip,
+                                  "ReasonCode" : pcReasonCode,
+                                  "WoNumber" : pcWoNumber,
+                                  "OperationSequence" : pcOperationSequence,
+                                  "InEntity" : pcInEntity,
+                                  "ItemCode" : pcItemCode,
+                                  "WarehouseCode" : pcWarehouseCode,
+                                  "Identifier" : pcIdentifier,
+                                  "SubIdentifier" : pcSubIdentifier,
+                                  "Storage" : pcStorage,
+                                  "SubStorage" : pcSubStorage,
+                                  "SchedQty" : pcSchedQty,
+                                  "QtyAlloc" : pcQtyAlloc,
+                                  "AllocIdentifier" : "",
+                                  "AllocSubIdentifier" : ""                                  
+                              },                         
+                              success: function (response) {                          
+                                   //alert(new Date() - time + "ms");                                                     
+                                  }, 
+                                  async: false,
+                                  //timeout: 1000,
+                                  error: function(request, error) {
+
+                                    if (error == "timeout") {                                
+                                        $.ajax(this);
+                                    } else {
+                                        window.alert("Failed to reach server!")    
+                                    }
+
+                                  }  
+                            })
+                            .done(function(response) {            
+
+                                var ValidationMsg = (response.ValidationResponse[0].pcError);
+                                //$("#grid6").data("kendoGrid").dataSource.read();
+
+                                if (ValidationMsg == "") {
+                                    alert("Update Successful");
+
+                                } else {
+                                    alert(ValidationMsg);
+
+                                }
+
+                            });              
+                        }
+                        else {
+                            alert("You answered no");
+
+                        }
+                    }
+                    /*  */                    
+                   
+                    grid.find('.k-grid-content tbody')
+                        .append('<tr class="kendo-data-row"><td colspan="' + colCount + '" style="text-align:center"><b>No Results Found! Please refine your search.</b></td></tr>');
+                }
+
+                // Get visible row count
+                /*var rowCount = grid.find('.k-grid-content tbody tr').length;
+
+                // If the row count is less that the page size add in the number of missing rows
+                if (rowCount < dataSource._take) {
+                    var addRows = dataSource._take - rowCount;
+                    for (var i = 0; i < addRows; i++) {
+                        grid.find('.k-grid-content tbody').append('<tr class="kendo-data-row"><td>&nbsp;</td></tr>');
+                    }
+                }*/
+                        
+
+        </script> 
+        <!-- END_CUSTOM_CODE_formPutAwayModel -->
+    </div>
+    <!-- START_CUSTOM_CODE_formPutAway -->
+    <!-- END_CUSTOM_CODE_formPutAway -->
+</div>

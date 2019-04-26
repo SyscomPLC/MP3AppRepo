@@ -1,0 +1,302 @@
+<html>
+<div data-role="view" data-layout="main-nonav" data-model="app.formLogin" data-show="onShowformLogin" data-after-show="afterShowFormLogin">
+    <div id="formLoginModel" class="form-view">
+        <form id="login-form">
+            <ul class="form-content" data-role="listview" data-style="inset">
+                <HR SIZE="6" COLOR="#10c4b2" WIDTH="100%">
+                <HR SIZE="6" COLOR="black" WIDTH="100%">
+                <HR SIZE="6" COLOR="#10c4b2" WIDTH="100%">
+                <li class="form-content-item">
+                    <center><img src="resources/PLC-BLACK.png" text-align="center" width="30%" height="31%"></center>
+                </li>                
+                <HR SIZE="6" COLOR="#10c4b2" WIDTH="100%">
+                <HR SIZE="6" COLOR="black" WIDTH="100%">
+                <HR SIZE="6" COLOR="#10c4b2" WIDTH="100%">
+                <font size="5" color="#10c4b2" >
+                    <p id="systemtext" style="text-align:center">system text</p>  
+                </font>                                                                                                                                 
+                <li> 
+                    <label>Username
+                        <input data-bind="value: formLoginModel.fields.Username" id="Username" type="text">
+                    </label> 
+                </li>
+                <li> 
+                    <label>Password
+                        <input data-bind="value: formLoginModel.fields.Password" id="Password" type="password">
+                    </label> 
+                </li>
+                <br>
+                <li>
+                    <label>System
+                        <input id="System" type="text" readonly>
+                    </label>
+                </li>           
+            </ul>
+            <hr>
+            <div class="button-group button-group-vertical"> 
+                <a class="regular" data-role="button" href="components/aboutView/view.html" data-icon="about">About</a> 
+                <a class="regular" id="login" data-role="button" data-click="authenticateuser" data-icon="tick">Confirm</a> 
+                <a class="primary" data-role="button" data-click="ClearLoginValues" data-icon="cross">Cancel</a>                
+            <font size="1" color="black" id="copyright" style="">
+                <center> Copyright (C) 2018 Syscom PLC, All Rights Reserved </center>
+            </font>
+           <font size="1" color="black" id="copyright" style="">
+                <center> Version 1.1.6 </center>
+            </font>              
+            <audio id="errorbeep" src="resources/errorbeep.mp3" preload="auto"></audio> </form>
+        <!-- START_CUSTOM_CODE_formLoginModel -->
+        <script>
+            icsiFirstLoad = "yes";
+
+               function onShowformLogin () {
+                  
+                    icsiFirstLoad = "yes";
+
+                    //Check simulator is in use and assign var to be used
+                    if (window.navigator.simulator === true) {
+                         glSimInUse = true;   
+                    } else {
+                         glSimInUse = false; 
+                    }
+
+                    erroraudio = document.getElementById("errorbeep");
+                    document.getElementById("Username").focus();
+                    
+                    //Clear values on page load
+                    //Can hardcode values when testing
+                    document.getElementById("Username").value = "";
+                    document.getElementById("Password").value = "";
+
+                    CreateSystemDropDown();
+
+                    var dropdownlist = $("#System").data("kendoDropDownList");
+                    dropdownlist.select(appbuild);
+
+                    onChangeDropDown();
+                                                         
+               }
+               
+               $(document).ready(function() {
+
+                   $("form").submit(function() { return false; });                                   
+
+                   $('#Username').keydown(function(event) {
+                       if (event.keyCode == 13) {
+                           document.getElementById("Password").focus();
+                           
+                       }
+                   });                   
+                   
+                   $('#Password').keydown(function(event) {
+                       if (event.keyCode == 13) { 
+
+                           authenticateuser ();                        
+                       }
+                   });              
+
+               });
+
+               function ClearLoginValues () {                            
+                    
+                    document.getElementById("Username").value = "";
+                    document.getElementById("Password").value = "";
+                    document.getElementById("Username").focus(); 
+                    
+               }                 
+               
+               function authenticateuser () {                     
+                   
+                   var testuser     = document.getElementById("Username").value;
+                   var testpassword = document.getElementById("Password").value;
+                               
+                   // username cannot be blank
+                   if (testuser == '') {
+                       erroraudio.play();
+                       window.alert("You must enter a Username!");
+                       return false;
+                   }
+                   
+                   // password cannot be blank
+                   if (testpassword == '') {
+                       erroraudio.play();
+                       window.alert("You must enter a Password!");
+                       return false;
+                   }
+				   
+				                
+                   $.ajax({
+                      method: "POST",    
+                      //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/res1", 
+                      //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/login",
+                      //url: "http://MCJS-HPERPDB1.net.JohnLewis.co.uk:8980/HPItemClassStockInfoTest/rest/test1/res1",
+                      //url: server_path + service_path + end,
+                      url: server_path + service_path + (deploy_server=="spectre" ? "res1" : "login"),
+                      beforeSend: function() {
+                          time = new Date();
+                          
+                      },
+                      headers: {
+                        "accept": "application/json",
+                        "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                      }, 
+                      data: {
+                        "Username": document.getElementById("Username").value,
+                        "Password": document.getElementById("Password").value 
+                      },                         
+                      success: function (response) {                          
+
+                          }, 
+                          async: false,
+                          timeout: 2000,
+                          error: function(request, error) {
+
+                            if (error == "timeout") {
+                                //send request again
+                                //$.ajax(this);
+                            } else {                                   
+                                var err = JSON.stringify(request)  ;  
+                                window.alert(err);                                                     
+                            }
+
+                          }  
+                    })
+                    .done(function(response) {
+                                              
+                       // Get the global variables
+                       gcLoginSuccess 			= (response.UserLogin[0].LoginSuccess);
+                       gcInEntity     			= (response.UserLogin[0].InEntity);
+                       gcUsername     			= (response.UserLogin[0].Username);
+                       gcDefaultWhs   			= (response.UserLogin[0].DefaultWhs);
+                       gcInspWhs      			= (response.UserLogin[0].InspWhs);
+                       gcEntityWip    			= (response.UserLogin[0].EntityWip);
+                       gcGlEntity     			= (response.UserLogin[0].GlEntity);
+                       gcUseridStamp  			= (response.UserLogin[0].UserIdStamp);
+                       gcIssueWhs     			= (response.UserLogin[0].IssueWhs); 
+                       gcIssueStoragePrompt    	= (response.UserLogin[0].IssueStoragePrompt);
+                       gcIssueSubStoragePrompt  = (response.UserLogin[0].IssueSubStoragePrompt);
+                       cMaxUserLogin            = (response.UserLogin[0].MaxUserLogin);
+                       gcUserPassowrd           = document.getElementById("Password").value;
+                       
+                       if (gcLoginSuccess == "N") {
+                                                      
+                           if (cMaxUserLogin == "Y") {
+                               erroraudio.play();
+                               window.alert("Maximum number of logins reached for this user. Please log out of existing sessions or contact your systems administrator.");
+
+                               document.getElementById("Username").focus();
+                               document.getElementById("Username").value = "";
+                               document.getElementById("Password").value = "";   
+                           } else {
+                               erroraudio.play();
+                               alert("Please check your username and/or Password");
+
+                               document.getElementById("Username").focus();
+                               document.getElementById("Username").value = "";
+                               document.getElementById("Password").value = "";   
+                           } 
+
+                       }
+                       else {
+                                                      
+                           window.alert("Welcome " + gcUsername);
+                                                      
+                           kendo.mobile.application.navigate("components/formMenu/view.html");
+                          
+                       }
+                    
+                    });        
+               }
+
+               function afterShowFormLogin () {
+                   document.getElementById("Username").focus();
+                  
+                   //setTimeout(function(){
+                   //     document.getElementById("Username").focus(); 
+                   //     //document.getElementById("Username").value = "";
+                   //}, 10000);
+             
+                   //$('#Username').click(function(e){
+                   //   $(this).focus();
+                   //});
+    
+               }
+
+               function CreateSystemDropDown() {
+
+                   var data = [
+                       { text: "Syscom", value: "1" },
+                       { text: "HP Test", value: "2" },
+                       { text: "HP Live", value: "3" }
+                   ];
+
+                   $("#System").kendoDropDownList({
+                      dataTextField: "text",
+                      dataValueField: "value", 
+                      height: 200,                     
+                      dataSource: data,
+				      change: onChangeDropDown, 
+                      headerTemplate: '<div><h4>Available Systems</h4></div>',                     
+                      animation: {
+                       close: {
+                         effects: "fadeOut zoom:out",
+                         duration: 300
+                       },
+                       open: {
+                         effects: "fadeIn zoom:in",
+                         duration: 300
+                       },                         
+                      },
+                      index: 0
+                   });     
+                   
+                   document.getElementById("Username").focus();              
+               } 
+
+               function onChangeDropDown() {
+                   var value = $("#System").val();
+                   
+                   if (value == "1") {
+                       deploy_server = "spectre";
+                       server_path = "http://spectre.int.syscom.plc.uk:8980";
+                       service_path = "/test1/rest/test1/";
+                       deploy_method = "created"; 
+                       deploy_service = "";
+                       $('#systemtext').text("Syscom Rel 7 Mobile System");
+                       //$('#putawayErrors').show();
+                   }
+                   if (value == "2") {
+                       deploy_server = "spectre";
+                       server_path = "http://MCJS-HPERPDB1.net.JohnLewis.co.uk:8980";
+                       service_path = "/HPItemClassStockInfoTest/rest/test1/";
+                       deploy_method = "deployed";
+                       deploy_service = "/HPItemClassStockInfoTest";
+                       $('#systemtext').text("HP Test Mobile System");
+                   }
+                   if (value == "3") {
+                       //deploy_server = "mcjs";
+                       //server_path = "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980";
+                       //service_path = "/mobilerest/rest/mobilerest/";
+                       //deploy_method = "created";
+                       //deploy_service = "";
+                       //Parkies LIVE New connection
+                       deploy_server = "spectre";
+                       server_path = "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980";
+                       service_path = "/HPItemClassStockInfo/rest/test1/";
+                       deploy_method = "deployed";
+                       deploy_service = "/HPItemClassStockInfo";                       
+                       $('#systemtext').text("HP Live Mobile System");
+
+                       //url: server_path + service_path + (deploy_server=="spectre" ? "res1" : "login"),
+                   }
+    
+                   document.getElementById("Username").focus();
+               }                            
+
+        </script>
+        <!-- END_CUSTOM_CODE_formLoginModel -->
+    </div>
+    <!-- START_CUSTOM_CODE_formLogin -->
+    <!-- END_CUSTOM_CODE_formLogin -->
+</div>
+
+</html>

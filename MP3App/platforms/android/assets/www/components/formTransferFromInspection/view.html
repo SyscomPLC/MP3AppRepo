@@ -1,0 +1,400 @@
+<div data-role="view" data-title="Transfer From Inspection" data-layout="main-nonav" data-model="app.formTransferFromInspection" data-show="onShowTFI" data-after-show="afterShowTFI">
+    <div id="formTransferFromInspectionModel" class="form-view">
+        <div class="icon-group">
+            <div class="main-icon">
+                <center>
+                    
+                </center>
+            </div>
+        </div> 
+        <form>
+            <ul class="form-content" data-role="listview" data-style="inset">
+                <li>
+                    <label>Inspection Warehouse
+                        <input id="tfiWarehouse" placeholder="Insp Warehouse" type="text" readonly>
+                    </label>
+                </li>
+                <li>
+                    <label>Item Code </label>
+                        <input id="tfiItemCode" placeholder="Item Code" type="text" autofocus>
+  
+                </li>               
+                <li>
+                    <label id="tfiPieceLabel">Piece</label>
+                        <input id="tfiPiece" type="text">
+                </li>
+                <li>
+                    <label id="tfiSubIdentLabel">SubIdentifier</label>
+                        <input id="tfiSubIdent" type="text">
+                </li>
+            </ul>
+            <hr>
+            <div class="button-group button-group-vertical">    
+                <!--<a data-role="button" data-click="onClickTFI">Scan</a>-->
+                <!--a data-role="button" href="components/formTransferFromInspectionUpd/view.html" data-click="ClickConfirmTFI">Confirm</a -->
+                <a class="regular" data-role="button" data-click="ClearFieldValues" data-icon="clear">Clear Fields</a>     
+                <a class="primary" data-role="button" href="components/formMenu/view.html" data-icon="cross">Cancel</a>
+            </div>
+        </form>
+        <!-- START_CUSTOM_CODE_formTransferFromInspectionModel -->
+        <script>    
+            
+            function onShowTFI() {                
+                
+                passtfiwarehouse = gcInspWhs;
+                passtfiitemcode = "";
+                passtfipiece = "";
+                passtfisubidentifier = "";
+                document.getElementById("tfiWarehouse").value = gcInspWhs;                
+                document.getElementById("tfiItemCode").value = "";
+                document.getElementById("tfiPiece").value = "";
+                document.getElementById("tfiSubIdent").value = "";
+                
+                getTFIWhsData(); 
+                requiredTFIStorage(); 
+                
+                $("#tfiPiece").hide();
+                $("#tfiPieceLabel").hide();
+                $("#tfiSubIdent").hide();
+                $("#tfiSubIdentLabel").hide();
+            }
+            
+            function afterShowTFI()  {
+                document.getElementById("tfiItemCode").focus();                
+            }     
+            
+                 
+             function OnLoadThis() {
+                $("form").submit(function() { return false; });
+               
+                getTFIWhsData(); 
+                                  
+                $('#tfiItemCode').keydown(function(event) {
+                    if (event.keyCode == 13) {
+                        
+                        if (document.getElementById("tfiItemCode").value == "") {
+                            erroraudio.play();
+                            alert("You must enter an item code.")
+                            
+                        } else {
+                            onEntertfiUpdItemCode()     
+                        }                        
+                        
+                    }
+                });   
+                
+
+                $('#tfiPiece').keydown(function(event) {
+                    if (event.keyCode == 13) { 
+                       if (tfiUpdItemClass == "2" || tfiUpdItemClass == "3" || tfiUpdItemClass == "5") {
+                           document.getElementById("tfiSubIdent").focus();
+                       } else {
+                           clickConfirmTFI();
+                       }
+                    }
+                });  
+                
+                $('#tfiSubIdent').keydown(function(event) {
+                    if (event.keyCode == 13) {
+                           clickConfirmTFI();     
+                    }
+                });
+                                               
+            };   
+            
+          
+            // $(document).ready(OnLoadThis);   
+            $(OnLoadThis);
+            
+            function ClearTFIFieldValues() {
+
+                
+                document.getElementById("tfiItemCode").value = "";
+                ClearTFIFieldValuesForItem();
+                                        
+            }               
+            
+            // function to clear all field values
+            function ClearTFIFieldValuesForItem() {
+                tfiEnteredItemCode = document.getElementById("tfiItemCode").value;
+                document.getElementById("tfiPiece").value = "";
+                document.getElementById("tfiSubIdent").value = "";
+                $("#tfiPiece").hide();
+                $("#tfiPieceLabel").hide();
+                $("#tfiSubIdent").hide();
+                $("#tfiSubIdentLabel").hide(); 
+                document.getElementById("tfiItemCode").focus();                
+                                        
+            }              
+            
+            function getTFIWhsData() {
+                             
+                $.ajax({
+                  method: "POST",                               
+                  //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/getallwarehouses", 
+                  //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getallwarehouses",
+                  url: server_path + service_path + "getallwarehouses",
+                  headers: {
+                    "accept": "application/json",
+                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                  }, 
+                  data: {
+                    "DefWhs"  : gcDefaultWhs
+                  },                         
+                  success: function (result) {
+                  },
+                  async: false,
+                  error: function(data) {
+                    window.alert("Failed to reach server!")
+                  }  
+                })
+                .done(function(response) {   
+
+                                               
+                    $("#tfiWarehouse").kendoDropDownList({
+                       dataSource: response,
+                       animation: {
+                        close: {
+                          effects: "fadeOut zoom:out",
+                          duration: 300
+                        },
+                        open: {
+                          effects: "fadeIn zoom:in",
+                          duration: 300
+                        },                         
+                       },
+                       index: 0
+                       //change: function(e) {
+                       //    requiredStorage();
+                       //}
+                    });
+                });                                 
+            }              
+            
+            function requiredTFIStorage () {
+
+                var SelectedWhs = document.getElementById("tfiWarehouse").value;
+
+                passpawarehouse = SelectedWhs;
+                $.ajax({
+                   method: "POST",                               
+                   //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/getstoragedetails", 
+                   //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getstoragedetails",
+                   url: server_path + service_path + "getstoragedetails", 
+                   headers: {
+                     "accept": "application/json",
+                     "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                   }, 
+                   data: {
+                     "WarehouseCode"  : SelectedWhs
+                   },                         
+                   success: function (result) {
+                   },
+                   async: false,
+                   error: function(data) {
+                     window.alert("Failed to reach server!")
+                   }  
+                 })
+                 .done(function(response) {    
+                     //window.alert(response.StorageDetails[0].StorageLabel); 
+                    
+                     tfifromStorageReq	       = (response.StorageDetails[0].StorageRequired);
+                     tfifromSubStorageReq     = (response.StorageDetails[0].SubStorageRequired);  
+                     tfifromStoragePrompt     = (response.StorageDetails[0].StorageLabel);
+                     tfifromSubStoragePrompt  = (response.StorageDetails[0].SubStorageLabel);
+                    
+                });
+            }            
+            
+            
+            function onEntertfiUpdItemCode() {
+                
+                ClearTFIFieldValuesForItem();
+                
+                gettfiItemClassDetails();
+                
+                if (tfiUpdValidItem == "yes") {                                      
+                    
+                    if (tfiUpdItemClass == "1") {
+                    
+                        pctfiIdentifier = "";
+                        pctfiSubIdentifier = "";
+                        tfiUseIdentifier = "no";
+                        tfiUseSubIdentifier = "no";                        
+                        clickConfirmTFI();
+                        
+                       
+                    } if (tfiUpdItemClass == "2" || tfiUpdItemClass == "3" || tfiUpdItemClass == "5") {
+                                               
+                        $("#tfiPiece").show();
+                        $("#tfiPieceLabel").show();
+                        $("#tfiSubIdent").show();
+                      	$("#tfiSubIdentLabel").show(); 
+                     
+                        
+                        $('#tfiPieceLabel').text(tfiUpdIdentLabel);
+                        $('#tfiSubIdentLabel').text(tfiUpdSubIdentLabel);
+                        tfiUseIdentifier = "yes";
+                        tfiUseSubIdentifier = "yes";   
+
+                        document.getElementById("tfiPiece").focus();
+
+                    } else if (tfiUpdItemClass == "4") {
+                                             
+                        $("#tfiPiece").show();
+                        $("#tfiPieceLabel").show();
+                        
+                        $('#tfiPieceLabel').text(tfiUpdIdentLabel);    
+                        tfiUseIdentifier = "yes";
+                        tfiUseSubIdentifier = "no";                           
+
+                        document.getElementById("tfiPiece").focus();
+
+                    }                    
+                } else {
+                    //window.alert("Error: The item is not valid");
+                    erroraudio.play();
+                    window.alert(tfiUpdValidItemMsg);
+                    document.getElementById("tfiItemCode").value = "";
+                    
+                    document.getElementById("tfiItemCode").focus();
+                    
+                }
+            }          
+            
+            function gettfiItemClassDetails() {
+                
+                
+                //alert("getitemclassdetails");
+                             
+                $.ajax({
+                  method: "POST",                               
+                    url: server_path + service_path + "getitemclassdetails", 
+                  //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getitemclassdetails",
+                  headers: {
+                    "accept": "application/json",
+                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                  }, 
+                  data: {
+                    "InEntity" : gcInEntity,
+                    "ItemCode": document.getElementById("tfiItemCode").value,
+                    "WarehouseCode": document.getElementById("tfiWarehouse").value  
+                  },                         
+                  success: function (result) {
+                    //  window.alert("Success!")
+                  },
+                  async: false,
+                  error: function(data) {
+                    window.alert("Failed to reach server!")
+                  }  
+                })
+                .done(function(response) {      
+                    
+                    tfiUpdItemClass     = (response.ItemClassDet[0].ItemClass);
+                    tfiUpdIdentLabel    = (response.ItemClassDet[0].IdentifierLabel);
+                    tfiUpdSubIdentLabel = (response.ItemClassDet[0].SubIdentifierLabel);
+                    tfiUpdValidItem     = (response.ItemClassDet[0].ValidItemCode);
+                    tfiUpdValidItemMsg  = (response.ItemClassDet[0].ValidItemMsg);
+                    
+                   // alert(tfiUpdValidItem);
+                    
+                });                 
+            }               
+            
+            function clickConfirmTFI () {
+                passtfiwarehouse = document.getElementById("tfiWarehouse").value;
+                passtfiitemcode = document.getElementById("tfiItemCode").value;
+                passtfipiece = document.getElementById("tfiPiece").value;
+                passtfisubidentifier = document.getElementById("tfiSubIdent").value;        
+                
+                
+                $.ajax({
+                  method: "POST",                               
+                  //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/wostatusvalidation", 
+                  url: server_path + service_path + "movefrominspvalidation",   
+                  //url: "http://mcjs-hperpapp1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/wostatusvalidation",
+                  headers: {
+                    "accept": "application/json",
+                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                  }, 
+                  data: {
+                    "InEntity" : gcInEntity,
+                    "ItemCode": passtfiitemcode,
+                    "WarehouseCode" : passtfiwarehouse,
+                    "Identifier" : passtfipiece,
+                    "SubIdentifier" : passtfisubidentifier
+                  },                         
+                  success: function (result) {
+                     // window.alert("Success!")
+                  },
+                  async: false,
+                  error: function(data) {
+                    //erroraudio.play();
+                    window.alert("Failed to reach server!")
+                  }  
+                })
+                .done(function(response) {                                 
+                    //logic after request and response 
+                    var cMoveFromInspValid = (response.MoveFromInspValidation[0].MoveFromInspValid);
+                    var cErrorMsg          = (response.MoveFromInspValidation[0].ErrorMsg); 
+                                       
+                    if (cMoveFromInspValid == "yes") {
+                        kendo.mobile.application.navigate("components/formTransferFromInspectionUpd/view.html");
+                    } else {
+                        erroraudio.play();
+                        alert(cErrorMsg); 
+                        document.getElementById("tfiItemCode").value = "";
+                        document.getElementById("tfiPiece").value = "";
+                        document.getElementById("tfiSubIdent").value = "";
+                        
+                        $("#tfiPiece").hide();
+                        $("#tfiPieceLabel").hide();
+                        $("#tfiSubIdent").hide();
+                        $("#tfiSubIdentLabel").hide();
+                        
+                        passtfipiece         = " "; 
+                        passtfisubidentifier = " "; 
+                        document.getElementById("tfiItemCode").focus();                        
+                        
+                    }                    
+
+                    //kendo.mobile.application.navigate("components/formTransferFromInspectionUpd/view.html");
+                });                      
+            }                        
+
+
+            
+            function TFIClearAndShowFields () {
+                document.getElementById("tfiItemCode").focus();
+                document.getElementById("tfiWarehouse").value = gcInspWhs;
+                document.getElementById("tfiItemCode").value = "";
+                document.getElementById("tfiPiece").value = "";
+                document.getElementById("tfiSubIdentifier").value = "";
+                //document.getElementById("tfiItemClass").value = "1";
+                document.getElementById('tfiPiece').style.display='';
+                document.getElementById('tfiSubIdentifier').style.display='';
+                passtfiwarehouse = "";
+                passtfiitemcode = "";
+                passtfipiece = "";
+                passtfisubidentifier = "";
+                $("#tfiPiece").hide();
+                $("#tfiPieceLabel").hide();
+                $("#tfiSubIdentifier").hide();
+                $("#tfiSubIdentifierLabel").hide();                
+            }
+            
+            
+            
+        </script>
+        <!-- END_CUSTOM_CODE_formTransferFromInspectionModel -->
+    </div>
+    <!-- START_CUSTOM_CODE_formTransferFromInspection -->
+    <!-- END_CUSTOM_CODE_formTransferFromInspection -->
+</div>
+
+<?php
+print str_pad('',4096)."\n";
+ob_flush();
+flush();
+set_time_limit(45);
+?>

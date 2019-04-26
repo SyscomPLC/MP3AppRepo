@@ -1,0 +1,50 @@
+<div data-role="view" data-layout="main" data-model="app.home" data-show="app.home.onShow" data-after-show="app.home.afterShow">    
+    <!--<div class="home">    
+        <div class="home-icon">
+            <center>
+                <img src="resources/SD1_opt.png">
+            </center>
+        </div>
+    </div>-->
+    
+    <div class="button-group button-group-vertical"> 
+        <a data-role="button" href="components/formLogin/view.html" data-click="onClick">Enter App</a>
+        <!--<a data-role="button" data-click="onClick">Enter App</a>-->
+    </div>            
+    <!-- START_CUSTOM_CODE_home -->
+    
+    <script>      
+    $(document).ready(function () {
+        //$("#dialog").dialog({ autoOpen: false });
+        
+        
+        function openDialog() {
+            //$("#dialog").dialog('open');
+            
+            //Change content on the fly
+            //ChangeMessage("JQueryUI Auto Dialog Close Box Example");
+            
+            //AutoCloseDialogBox(5000);
+            //return false;            
+            
+             /*$('#dialog').dialog({
+                autoOpen: true,
+                //show: "blind",
+                //hide: "explode",
+                //modal: true,
+                open: function(event, ui) {
+                    setTimeout(function(){
+                        $('#dialog').dialog('close');                
+                    }, 3000);
+                }
+            });*/            
+            
+        }
+               
+        
+    });
+                
+    
+    </script>
+    <!-- END_CUSTOM_CODE_home -->
+</div>
