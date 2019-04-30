@@ -81,7 +81,7 @@ function onBackButtonPressed() {
 // 2 = HP Live System
 // 3 = HP ASAF Test System
 // 4 = HP ASAF Live System
-var appbuild = 3;
+var appbuild = 0;
 
 //Spectre connection
 //var deploy_server = "spectre";

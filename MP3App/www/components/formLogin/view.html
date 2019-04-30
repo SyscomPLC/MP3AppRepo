@@ -3,16 +3,16 @@
     <div id="formLoginModel" class="form-view">
         <form id="login-form">
             <ul class="form-content" data-role="listview" data-style="inset">
-                <HR SIZE="6" COLOR="#10c4b2" WIDTH="100%">
+                <HR SIZE="6" COLOR="#33b5e5" WIDTH="100%">
                 <HR SIZE="6" COLOR="black" WIDTH="100%">
-                <HR SIZE="6" COLOR="#10c4b2" WIDTH="100%">
+                <HR SIZE="6" COLOR="#33b5e5" WIDTH="100%">
                 <li class="form-content-item">
                     <center><img src="resources/PLC-BLACK.png" text-align="center" width="30%" height="31%"></center>
                 </li>                
-                <HR SIZE="6" COLOR="#10c4b2" WIDTH="100%">
+                <HR SIZE="6" COLOR="#33b5e5" WIDTH="100%">
                 <HR SIZE="6" COLOR="black" WIDTH="100%">
-                <HR SIZE="6" COLOR="#10c4b2" WIDTH="100%">
-                <font size="5" color="#10c4b2" >
+                <HR SIZE="6" COLOR="#33b5e5" WIDTH="100%">
+                <font size="5" color="#33b5e5" >
                     <p id="systemtext" style="text-align:center">system text</p>  
                 </font>                                                                                                                                 
                 <li> 
@@ -224,11 +224,9 @@
                function CreateSystemDropDown() {
 
                    var data = [
-                       { text: "Syscom", value: "1" },
-                       { text: "HP Test", value: "2" },
-                       { text: "HP Live", value: "3" },
-                       { text: "ASAF Test", value: "4" },
-                       { text: "ASAF Live", value: "5" }
+                       { text: "Syscom PLC", value: "1" },
+                       { text: "MP3 ASAF Test", value: "2" },
+                       { text: "MP3 ASAF Live", value: "3" }
                    ];
 
                    $("#System").kendoDropDownList({
@@ -269,36 +267,19 @@
                    if (value == "2") {
                        deploy_server = "spectre";
                        server_path = "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980";
-                       service_path = "/TestHPItemClassStockInfoTest/rest/test1/";
-                       deploy_method = "deployed";
-                       deploy_service = "/TestHPItemClassStockInfoTest";
-                       $('#systemtext').text("HP Test Mobile System");
-                   }
-                   if (value == "3") {
-                       deploy_server = "spectre";
-                       server_path = "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980";
-                       service_path = "/HPItemClassStockInfo/rest/test1/";
-                       deploy_method = "deployed";
-                       deploy_service = "/HPItemClassStockInfo";                       
-                       $('#systemtext').text("HP Live Mobile System");
-                       
-                   }
-                   if (value == "4") {
-                       deploy_server = "spectre";
-                       server_path = "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980";
                        service_path = "/TestASAFHPItemClassStockInfo/rest/test1/";
                        deploy_method = "deployed";
                        deploy_service = "/TestASAFHPItemClassStockInfo";
-                       $('#systemtext').text("ASAF Test Mobile System");
+                       $('#systemtext').text("MP3 ASAF Test Mobile System");
                        
                    }
-                   if (value == "5") {
+                   if (value == "3") {
                        deploy_server = "spectre";
                        server_path = "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980";
                        service_path = "/ASAFHPItemClassStockInfo/rest/test1/";
                        deploy_method = "deployed";
                        deploy_service = "/ASAFHPItemClassStockInfo";
-                       $('#systemtext').text("ASAF Live Mobile System");
+                       $('#systemtext').text("MP3 ASAF Live Mobile System");
 
                    }
     

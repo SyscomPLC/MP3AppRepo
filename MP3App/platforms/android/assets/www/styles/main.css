@@ -16,19 +16,16 @@
     display: table;
     border-collapse: separate;
     border-spacing: 1em;
-
 }
 
 #kendoUiMobileApp .button-group {
-    table-layout: fixed;    
-
+    table-layout: fixed;
 }
 
 #kendoUiMobileApp .stocktakefixed {
-  position: absolute;
-  top: 300px;
-  width: 100%;    
-
+    position: absolute;
+    top: 300px;
+    width: 100%;
 }
 
 #kendoUiMobileApp .button-group .km-button {
@@ -38,19 +35,19 @@
 }
 
 #kendoUiMobileApp .button-group .button-group-vertical .testbutton {
-    position:absolute;
+    position: absolute;
     bottom: 5%;
-    right:20%;
+    right: 20%;
 }
 
 #kendoUiMobileApp .button-group.button-group-vertical .km-button {
     display: block;
 }
 
-#kendoUiMobileApp.km-flat .button-group .km-button.primary {   
+#kendoUiMobileApp.km-flat .button-group .km-button.primary {
     color: #fff;
-    background-color: #10c4b2;
-    width:100%; 
+    background-color: #33b5e5;
+    width: 100%;
 }
 
 #kendoUiMobileApp.km-ios7 .button-group .km-button.primary {
@@ -95,7 +92,6 @@
 #kendoUiMobileApp .icon-group .app-details {
     display: table-cell;
     vertical-align: top;
-    
 }
 
 #kendoUiMobileApp .icon-group .app-icon {
@@ -103,54 +99,52 @@
     width: 7em;
     overflow: hidden;
     text-align: left;
-    
 }
 
 #kendoUiMobileApp .icon-group .menu-icon {
     margin: 0 auto;
     width: 15em;
-    overflow: hidden;    
+    overflow: hidden;
     box-shadow: 10px 10px 5px #888888;
 }
 
-#kendoUiMobileApp .icon-group .menu-icon img {
-    display: block;
-    max-width: 15em;
-    height: auto;      
-}
+    #kendoUiMobileApp .icon-group .menu-icon img {
+        display: block;
+        max-width: 15em;
+        height: auto;
+    }
 
 #kendoUiMobileApp .icon-group .app-icon img {
     display: block;
     max-width: 7em;
-    height: auto;   
+    height: auto;
 }
 
-#kendoUiMobileApp .home .home-icon { 
+#kendoUiMobileApp .home .home-icon {
     margin: 0 auto;
     width: 100%;
-    overflow: hidden; 
+    overflow: hidden;
 }
 
-#kendoUiMobileApp .home .home-icon img {  
-    left:0;
-    display: block;
-    max-width: 100%;
-    height: auto; 
-}
+    #kendoUiMobileApp .home .home-icon img {
+        left: 0;
+        display: block;
+        max-width: 100%;
+        height: auto;
+    }
 
 #kendoUiMobileApp .icon-group .main-icon {
     margin: 0 auto;
     width: 5em;
-    overflow: hidden;    
+    overflow: hidden;
     box-shadow: 10px 10px 5px #888888;
 }
 
-#kendoUiMobileApp .icon-group .main-icon img {
-    display: block;
-    max-width: 5em;
-    height: auto;    
-    
-}
+    #kendoUiMobileApp .icon-group .main-icon img {
+        display: block;
+        max-width: 5em;
+        height: auto;
+    }
 
 #kendoUiMobileApp .icon-group .app-details h2,
 #kendoUiMobileApp .icon-group .app-details h4 {
@@ -167,7 +161,7 @@
 /* START_CUSTOM_CODE_kendoUiMobileApp */
 #kendoUiMobileApp.syscomicon {
     background-image: url("resources/acreportimage.png");
-    background-position: 0 -64px;    
+    background-position: 0 -64px;
 }
 
 
@@ -180,21 +174,21 @@
     vertical-align: top;
 }
 
-#kendoUiMobileApp #navigation-container.km-tabstrip .km-button .km-text {
-    max-width: 100%;
-    word-wrap: break-word;
-}
+    #kendoUiMobileApp #navigation-container.km-tabstrip .km-button .km-text {
+        max-width: 100%;
+        word-wrap: break-word;
+    }
 
 #kendoUiMobileApp #navigation-container .active {
-    background: #10c4b2;
+    background: #33b5e5;
     color: #fff;
 }
 
-#kendoUiMobileApp #navigation-container .active:after {
-    color: #fff;
-}
+    #kendoUiMobileApp #navigation-container .active:after {
+        color: #fff;
+    }
 
-#kendoUiMobileApp .k-grid{
+#kendoUiMobileApp .k-grid {
     font-size: 15px;
 }
 
@@ -232,26 +226,32 @@
 #kendoUiMobileApp .km-swirl2:before {
     content: "\e0f6";
 }
+
 #kendoUiMobileApp .km-about:after,
 #kendoUiMobileApp .km-about:before {
     content: "\e047";
 }
+
 #kendoUiMobileApp .km-clear:after,
 #kendoUiMobileApp .km-clear:before {
     content: "\e0c3";
 }
+
 #kendoUiMobileApp .km-up:after,
 #kendoUiMobileApp .km-up:before {
     content: "\e011";
 }
+
 #kendoUiMobileApp .km-down:after,
 #kendoUiMobileApp .km-down:before {
     content: "\e012";
 }
+
 #kendoUiMobileApp .km-qty:after,
 #kendoUiMobileApp .km-qty:before {
     content: "\e032";
 }
+
 #kendoUiMobileApp .km-movelostrolls:after,
 #kendoUiMobileApp .km-movelostrolls:before {
     content: "\e0b2";

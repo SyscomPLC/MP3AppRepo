@@ -1,34 +1,38 @@
 <div data-role="view" data-title="About" data-layout="main-nonav" data-model="app.aboutView" data-show="app.aboutView.onShow" data-after-show="app.aboutView.afterShow">
     <div class="about-view" data-bind="invisible:error">
         <div class="icon-group">
+            <div class="app-details">
 
-            <div class="app-icon">
-                <img src="resources/HP LOGO.JPG">
+                <ul class="form-content" data-role="listview" data-style="inset">
+                    <HR SIZE="2" COLOR="#33b5e5" WIDTH="100%">
+                    <HR SIZE="2" COLOR="black" WIDTH="100%">
+                    <HR SIZE="" COLOR="#33b5e5" WIDTH="100%">
+                    <li class="form-content-item">
+                        <center><img src="resources/PLC-BLACK.png" text-align="center" width="30%" height="31%"></center>
+                    </li>
+                    <HR SIZE="2" COLOR="#33b5e5" WIDTH="100%">
+                    <HR SIZE="2" COLOR="black" WIDTH="100%">
+                    <HR SIZE="2" COLOR="#33b5e5" WIDTH="100%">
+                </ul>
+                <h4>
+                    Version 1.0.1
+                </h4>
+                <h4>
+                    Application for various warehouse processes, Item Class Stock Information, Stock Take By Location,
+                    Transfer From Inspection and Putaway, created by Syscom PLC
+                </h4>
             </div>
-            <div class="app-details">
-                <h2>Syscom ERP Mobile</h2>
-                <h3>Version 1.1.6</h3>
             </div>
-        </div>        
-        <div class="icon-group">
-            <div class="app-icon">
-                <img src="resources/PLC-CMYK.png"> 
+            <div class="button-group button-group-vertical">
+                <a id="statsbutton" class="regular" data-role="button" href="components/formStats/view.html">Stats</a>
+                <a class="regular" data-role="button" data-rel="external" href="mailto:dominic.tibbetts@syscom.plc.uk">Contact us</a>
+                <a class="regular" data-role="button" data-rel="external" href="#" onclick="app.aboutView.aboutViewModel.openLink('https://www.facebook.com/SyscomPLC');">Like us on Facebook</a>
+                <a class="regular" data-role="button" data-rel="external" href="#" onclick="app.aboutView.aboutViewModel.openLink('https://twitter.com/syscomplc');">Follow us on Twitter</a>
+                <a class="primary" data-role="button" href="components/formLogin/view.html" data-icon="arrow-left">Back</a>
             </div>
-            <div class="app-details">
-                <h4>Application for various warehouse processes, Item Class Stock Information, Stock Take By Location,
-                    Transfer From Inspection and Putaway, created by Dom Tibbetts - Syscom PLC</h4>
-            </div>
-        </div>  
-        <div class="button-group button-group-vertical">
-            <a id="statsbutton" class="regular" data-role="button" href="components/formStats/view.html">Stats</a>
-            <a class="regular" data-role="button" data-rel="external" href="mailto:dominic.tibbetts@syscom.plc.uk">Contact us</a>
-            <a class="regular" data-role="button" data-rel="external" href="#" onclick="app.aboutView.aboutViewModel.openLink('https://www.facebook.com/SyscomPLC');">Like us on Facebook</a>
-            <a class="regular" data-role="button" data-rel="external" href="#" onclick="app.aboutView.aboutViewModel.openLink('https://twitter.com/syscomplc');">Follow us on Twitter</a>
-            <a class="primary" data-role="button" href="components/formLogin/view.html" data-icon="arrow-left">Back</a>
+            <!-- START_CUSTOM_CODE_aboutViewModel -->
+            <!-- END_CUSTOM_CODE_aboutViewModel -->
         </div>
-        <!-- START_CUSTOM_CODE_aboutViewModel -->
-        <!-- END_CUSTOM_CODE_aboutViewModel -->
-    </div>
     <!-- START_CUSTOM_CODE_aboutView -->
     <!-- END_CUSTOM_CODE_aboutView -->
 </div>
