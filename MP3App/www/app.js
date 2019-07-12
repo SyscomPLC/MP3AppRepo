@@ -77,11 +77,9 @@ function onBackButtonPressed() {
 //var enableBackButton = function() { document.removeEventListener("backbutton", emptyFunc); }
 
 // 0 = Syscom Rel 7
-// 1 = HP Test System
-// 2 = HP Live System
-// 3 = HP ASAF Test System
-// 4 = HP ASAF Live System
-var appbuild = 0;
+// 1 = HP ASAF Test System
+// 2 = HP ASAF Live System
+var appbuild = 2;
 
 //Spectre connection
 //var deploy_server = "spectre";

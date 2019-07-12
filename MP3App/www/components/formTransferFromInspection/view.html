@@ -11,8 +11,8 @@
             <ul class="form-content" data-role="listview" data-style="inset">
                 <li>
                     <label>
-                        Inspection Warehouse
-                        <input id="tfiWarehouse" placeholder="Insp Warehouse" type="text">
+                        Insp Whs
+                        <input id="tfiWarehouse" placeholder="Insp Warehouse" type="text" readonly>
                     </label>
                 </li>
                 <li>
@@ -51,7 +51,7 @@
                 document.getElementById("tfiPiece").value = "";
                 document.getElementById("tfiSubIdent").value = "";
 
-                getTFIWhsData();
+                //getTFIWhsData();
 
                 requiredTFIStorage();
 
@@ -71,7 +71,8 @@
             function OnLoadThis() {
                 $("form").submit(function () { return false; });
 
-                getTFIWhsData();
+                //getTFIWhsData();
+                document.getElementById("tfiWarehouse").value = gcInspWhs;
 
                 $('#tfiItemCode').keydown(function (event) {
                     if (event.keyCode == 13) {

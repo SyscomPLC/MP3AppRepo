@@ -33,7 +33,7 @@
         </form>
         <!-- START_CUSTOM_CODE_formTransferFromInspectionUpdModel -->        
         
-        <script id="popup_editor" type="text/x-kendo-template">            
+        <script id="popup_editor2" type="text/x-kendo-template">            
             <p> 
                 <div>
                     <div class="left">
@@ -47,7 +47,7 @@
             <p>
                 <div>
                     <div class="left">            
-                    	<label for="WarehouseCode" name="WarehouseCodeLabel">Insp Whs Code:</label>
+                    	<label for="WarehouseCode" name="WarehouseCodeLabel">Insp Whs:</label>
                     </div>
                     <div class="right">
             			<input id="WarehouseCode" name="WarehouseCode" class="k-input k-textbox" readonly/>
@@ -336,16 +336,17 @@
                    //},
                    editable: {
                        mode: 'popup', 
-                       template: kendo.template($("#popup_editor").html()) 
+                       template: kendo.template($("#popup_editor2").html()) 
                        //template: $("#template").html()
                    },
-                   edit: function(e) {
-                                      
+                   edit: function (e) {
+                                                             
                        var model = e.model;
                        var container = e.container;
                        
                        model.dirty = true;
                        container.dirty = true;
+
                        $('#UserField15').val(gcDefaultWhs).change();
                        $('#UserField10').val(gcUseridStamp).change();
                        
@@ -409,16 +410,19 @@
                           });
                           //$("#UserField15").data('kendoDropDownList').select(0);
                           //alert(e.container.find("[name='UserField15']").value);
-                       }                     
+                       }                    
                        
                        //$('#edited').prop('checked', true);
                        //$("#edited").attr('checked', true);                   
-                                              
+                                             
                        getWhsData();
                                               
                        //var SelectedWhs = document.getElementById("UserField15").value;
-                                           
-                       $('#UserField15').change(hideTFIFunction).change();
+
+                       $('#UserField15').change(hideTFIFunction).change(); 
+
+                       model.dirty = false;
+                       container.dirty = false;                       
                                             
                        //document.getElementById("UserField15").value = gcDefaultWhs;
                        
@@ -688,18 +692,18 @@
                         $('#SubIdentifierLabel').text(tfiUpdSubIdentLabel);
                         
                     }   
-                });                           
+                }); 
            }  
             
            //function to change grid size depending on orientation
            function resizeTFIGrids() {
-               var windowHeight = $(window).height();
+               /*var windowHeight = $(window).height();
                var newHeight = (windowHeight - $("p").first().outerHeight() * 3) / 1.6;
                var resizables = $(".adaptive-grid-wrapper, .adaptive-grid-wrapper > .km-pane-wrapper, .k-grid");                                 
 
                resizables.height(newHeight);
 
-               $("#grid3").data("kendoGrid").resize();
+               $("#grid3").data("kendoGrid").resize();*/
 
            }
              

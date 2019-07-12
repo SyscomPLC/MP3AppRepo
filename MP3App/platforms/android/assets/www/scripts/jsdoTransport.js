@@ -1,15 +1,17 @@
 // Begin class declaration
 var JSDOTransport = kendo.Class.extend({
-   
+
     // The `init` method will be called when a new instance is created
     init: function (serviceURI, catalogURI, resourceName, tableName, filter) {
-        
+
+     
+
         // Create and configure the session object
         this._createSession(serviceURI, catalogURI);
-         
+        
         // Create the JSDO
         this.jsdo = new progress.data.JSDO({ name: resourceName });
-                
+        
         // Create proxies to internal methods to maintain the correct 'this' reference
         this.transport = {
             tableName: tableName,
@@ -23,13 +25,18 @@ var JSDOTransport = kendo.Class.extend({
     
     // methods with an "_" are private and are only to be used by the class
     _createSession: function (serviceURI, catalogURI) {
+    
         this.session = new progress.data.Session();
+       
         this.session.login(serviceURI, '', '');
+       
         this.session.addCatalog(catalogURI);
+       
     },
     
     // the transports needed by the DataSource
     _read: function (options) {
+        
         var jsdo = this.jsdo;
         var tableName = this.transport.tableName;
         
@@ -49,6 +56,7 @@ var JSDOTransport = kendo.Class.extend({
         }, jsdo);
         
         jsdo.fill(this.transport.filter);
+        
     },
     
     _create: function (options) {

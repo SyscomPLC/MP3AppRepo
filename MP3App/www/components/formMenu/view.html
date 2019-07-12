@@ -3,65 +3,65 @@
         <form>
             <div class="button-group button-group-vertical" style="fixed">
                 <a class="regular" data-role="button" href="components/formItemClassStockInfo/view.html">Item Class Stock Enquiry</a>
-                <a class="regular" data-role="button" href="components/formStockTakeByLocation/view.html">Stock Take By Location</a>
+                <!--<a class="regular" data-role="button" href="components/formStockTakeByLocation/view.html">Stock Take By Location</a>-->
                 <a class="regular" data-role="button" href="components/formTransferFromInspection/view.html">Transfer From Inspection</a>
-                <a class="regular" data-role="button" href="components/formScanToWork/view.html">Scan to Work</a>
+                <!--<a class="regular" data-role="button" href="components/formScanToWork/view.html">Scan to Work</a>-->
                 <a class="regular" data-role="button" href="components/formPutAway/view.html">Putaway</a>
-                <a class="regular" data-role="button" href="components/formScanOperations/view.html">Scan Through Operations</a>                
+                <!--<a class="regular" data-role="button" href="components/formScanOperations/view.html">Scan Through Operations</a>-->
             </div>
-            <hr>
-            <div class="button-group">
-                <a class="primary" data-role="button" data-click="Logout" data-icon="logout">Logout</a>           
+        <hr>
+        <div class="button-group">
+            <a class="primary" data-role="button" data-click="Logout" data-icon="logout">Logout</a>
+        </div>
+    </form>
+    <!-- START_CUSTOM_CODE_formMenuModel -->
+                <script>
+
+                    function optionNotAvail() {
+
+                        alert("Coming soon.");
+
+                    }
+
+                    function onClickTFI() {
+                        if (gcInspWhs == "") {
+                            window.alert("There Is No Inspection Warehouse Set For Warehouse " + gcDefaultWhs + ". Please Set Inspection Warehouse.")
+                        } else {
+                            kendo.mobile.application.navigate("components/formTransferFromInspection/view.html");
+                        }
+
+                    }
+
+                    /* function to clear encrypted password file from storage */
+                    function Logout() {
+
+                        $.ajax({
+                            method: "POST",
+                            url: server_path + service_path + "logout",
+                            headers: {
+                                "accept": "application/json",
+                                "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                            },
+                            data: {
+                                "UserID": gcUseridStamp
+                            },
+                            success: function (result) {
+
+                            },
+                            async: true
+                        })
+                            .done(function (response) {
+
+                                //logic after request and response
+                                var cLogoutSuccess = (response.UserLogout[0].LogoutSuccess);
+
+                            });
+
+                        kendo.mobile.application.navigate("components/formLogin/view.html");
+                    }
+                </script>
+                <!-- END_CUSTOM_CODE_formMenuModel -->
             </div>
-        </form>        
-        <!-- START_CUSTOM_CODE_formMenuModel -->
-        <script>
-
-            function optionNotAvail() { 
-                
-               alert("Coming soon.");
-            
-            }
-            
-            function onClickTFI() {
-                if (gcInspWhs == "") {
-                    window.alert("There Is No Inspection Warehouse Set For Warehouse " + gcDefaultWhs + ". Please Set Inspection Warehouse.")
-                } else {
-                     kendo.mobile.application.navigate("components/formTransferFromInspection/view.html");                    
-                }                
-                
-            }
-            
-            /* function to clear encrypted password file from storage */
-            function Logout() {
-
-                $.ajax({
-                    method: "POST", 
-                    url: server_path + service_path + "logout",   
-                    headers: {
-                        "accept": "application/json",
-                        "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
-                    }, 
-                    data: {
-                        "UserID" : gcUseridStamp
-                    },                         
-                    success: function (result) { 
-
-                    },
-                    async: true                      
-                })
-                .done(function(response) {  
-
-                    //logic after request and response 
-                    var cLogoutSuccess = (response.UserLogout[0].LogoutSuccess);
-
-                });                
-                
-                kendo.mobile.application.navigate("components/formLogin/view.html");
-            }
-        </script>
-        <!-- END_CUSTOM_CODE_formMenuModel -->
-    </div>
     <!-- START_CUSTOM_CODE_formMenu -->
     <!-- END_CUSTOM_CODE_formMenu -->
 </div>

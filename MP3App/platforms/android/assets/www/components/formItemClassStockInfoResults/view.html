@@ -1,268 +1,262 @@
-<div data-role="view" 
+<div data-role="view"
      data-zoom="true"
-     data-title="Item Class Stock Enquiry" 
-     data-layout="main-nonav" 
-     data-model="app.formItemClassStockInfoResults" 
-     data-show="onShowformItemClassStockInfoResults"      
+     data-title="Item Class Stock Enquiry"
+     data-layout="main-nonav"
+     data-model="app.formItemClassStockInfoResults"
+     data-show="onShowformItemClassStockInfoResults"
      data-after-show="afterShowformItemClassStockInfoResults">
     <div id="formItemClassStockInfoResultsModel" class="form-view">
         <form>
             <ul class="form-content" data-role="listview" data-style="inset">
                 <li>
-                    <label>Warehouse
+                    <label>
+                        Warehouse
                         <input data-bind="value: formItemClassStockInfoResultsModel.fields.icsiResWarehouse" id="icsireswarehouse" placeholder="Warehouse" type="text" readonly>
                     </label>
                 </li>
 
                 <li>
-                    <label>Item Code
+                    <label>
+                        Item Code
                         <input data-bind="value: formItemClassStockInfoResultsModel.fields.icsiResItemCode" id="icsiresitemcode" placeholder="Item Code" type="text" readonly>
                     </label>
                 </li>
-            </ul>      
+            </ul>
             <div id="example">
-                <div id="grid"></div>          
-            </div>  
+                <div id="grid"></div>
+            </div>
             <hr>
             <div class="button-group button-group-vertical">
                 <a class="primary" data-role="button" href="components/formItemClassStockInfo/view.html" data-click="DestroyICSEGrid" data-icon="cross">Cancel</a>
             </div>
-        </form>        
-  
-        <!-- START_CUSTOM_CODE_formItemClassStockInfoResultsModel -->
-        <script>  
-            // function to receive values from previous view
-            function onShowformItemClassStockInfoResults() {  
+        </form>
 
+        <!-- START_CUSTOM_CODE_formItemClassStockInfoResultsModel -->
+        <script>
+            // function to receive values from previous view
+            function onShowformItemClassStockInfoResults() {
                 icsiItemClass = "";
                 icsiIdentLabel = "";
                 icsiSubIdentLabel = "";
                 icsiValidItem = "";
-                icsiValidItemMsg = "";              
-                
+                icsiValidItemMsg = "";
+
                 document.getElementById("icsireswarehouse").value = passwarehouse;
-                document.getElementById("icsiresitemcode").value = passitemcode;                
-                
+                document.getElementById("icsiresitemcode").value = passitemcode;
+
                 getICSIItemClassDetails();
-                
+
                 requiredICSIStorage();
-                                
+
                 if (icsiStorageReq == "no") {
                     var storagehidden = true;
                 } else {
                     var storagehidden = false;
                 }
-                
+
                 if (icsiSubStorageReq == "no") {
-                     var substoragehidden = true;
+                    var substoragehidden = true;
                 } else {
                     var substoragehidden = false;
-                }                
-                
-                var cFilter = "WHERE WarehouseCode = " + '"' + passwarehouse + '"' + " AND ItemCode BEGINS " + '"' +
-                           passitemcode + '"' + " AND QuantityOnHand > 0";
+                }
 
-                var serviceURI   = server_path + (deploy_method=="deployed" ? deploy_service : "/HPItemClassStockInfoService"),                     
-                    catalogURI   = serviceURI + "/static/HPItemClassStockInfoService.json",            
-                    resourceName = 'ItemClassStock';                                               
-                
+                var cFilter = "WHERE WarehouseCode = " + '"' + passwarehouse + '"' + " AND ItemCode BEGINS " + '"' +
+                    passitemcode + '"' + " AND QuantityOnHand > 0";
+                var serviceURI = server_path + (deploy_method == "deployed" ? deploy_service : "/HPItemClassStockInfoService"),
+                    catalogURI = serviceURI + "/static/HPItemClassStockInfoService.json",
+                    resourceName = 'ItemClassStock';
+
                 // create a new instance of the JSDO transport class for 'ItemClassStock'
-                // the class was included as part of the jsdoTransport file 
-                
-                var ItemClassStock = new JSDOTransport(serviceURI, catalogURI, resourceName,"",cFilter);
-                                 
+                // the class was included as part of the jsdoTransport file
+
+                var ItemClassStock = new JSDOTransport(serviceURI, catalogURI, resourceName, "", cFilter);
+
                 // fuction for grid details
                 $('#grid').kendoGrid({
-                    // define transports as the class functions 
+                    // define transports as the class functions
                     autoBind: true,
-                    dataSource: {                  
-                    transport: ItemClassStock.transport,     
-                    schema: {
-                        model: {
-                            id: '_id',                            
-                            fields: {
-                                // assign fields to read only in edit mode
-                                ItemCode: { editable: false}, 
-                                WarehouseCode: { editable: false}
-                            }
-                        },
-                    pageSize: 10,
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true,
-                    },                    
-                    error: function(e) {
-                        var obj, error = "";                    
-                        console.log('Error: ', e);
-                        if (e.xhr && e.xhr.response) {
-                            try {
-                                obj = JSON.parse(e.xhr.response);
-                                if (obj._retVal) {
-                                    error = obj._retVal;
+                    dataSource: {
+                        transport: ItemClassStock.transport,
+                        schema: {
+                            model: {
+                                id: '_id',
+                                fields: {
+                                    // assign fields to read only in edit mode
+                                    ItemCode: { editable: false },
+                                    WarehouseCode: { editable: false }
                                 }
-                                alert("Error returned from server: " + error);
+                            },
+                            pageSize: 10,
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true,
+                        },
+                        error: function (e) {
+                            var obj, error = "";
+                            console.log('Error: ', e);
+                            if (e.xhr && e.xhr.response) {
+                                try {
+                                    obj = JSON.parse(e.xhr.response);
+                                    if (obj._retVal) {
+                                        error = obj._retVal;
+                                    }
+                                    alert("Error returned from server: " + error);
+                                }
+                                catch (e) {
+                                    alert("Error returned from server: " + xhr.response);
+                                }
                             }
-                            catch(e) {
-                                alert("Error returned from server: " + xhr.response);                    
-                            }
-                        }                
-                    }},                                       
-                    dataBound : function () {
-                       //DisplayNoResultsFound($('#grid'));
-                    },                    
+                        }
+                    },
+                    dataBound: function () {
+                        //DisplayNoResultsFound($('#grid'));
+                    },
                     // Grid controls and config
-                    
+
                     //height: 680,
                     //height: 350,
-                    //pageSize: 10,	 
-                    //serverPaging: true,                    
+                    //pageSize: 10,
+                    //serverPaging: true,
                     groupable: false,
                     //sortable: true,
                     //reorderable: true,
-                    resizable: true,						
+                    resizable: true,
                     selectable: true,
                     filterable: false,
                     scrollable: true,
                     columnMenu: false,
                     reorderable: true,
                     pageable: {
-                      refresh: true,
-                      pageSizes: true,
-                      pageSize: 10,	                      
-                      buttonCount: 4
-                   },
+                        refresh: true,
+                        pageSizes: true,
+                        pageSize: 10,
+                        buttonCount: 4
+                    },
+                    //noRecords: {
+                    //  template: "No data available to display."
+                    //},
+                    editable: 'popup',
+                    columns: [
+                        //{ command: "edit", title: " ", width: "150px" },
+                        { field: 'ItemCode', title: 'Item Code', editable: false, type: 'int', width: 140, locked: true, lockable: false },
+                        { field: 'Description', title: 'Desc', type: 'int', width: 180 },
+                        { field: 'WarehouseCode', title: 'Whs', type: 'int', width: 90 },
+                        { field: 'Storage', title: icsiStoragePrompt, type: 'int', width: 90, locked: false, lockable: false, hidden: storagehidden },
+                        { field: 'Substorage', title: icsiSubStoragePrompt, type: 'int', width: 90, locked: false, lockable: false, hidden: substoragehidden },
+                        { field: 'Identifier', title: icsiIdentLabel, type: 'int', width: 110 },
+                        { field: 'SubIdentifier', title: icsiSubIdentLabel, type: 'int', width: 130 },
+                        { field: 'cQuantityOnHand', title: 'On Hand', type: 'int', width: 100 },
+                        { field: 'cQuantityAlloc', title: 'Alloc', type: 'int', width: 90 },
+                        { field: 'cQuantityOnPPS', title: 'PPS', type: 'int', width: 90 },
+                        { field: 'cDespatchNoteQty', title: 'Desp', type: 'int', width: 90 },
+                        { title: '&nbsp;', width: '100%' }
+                    ]
 
-                   //noRecords: {
-                   //  template: "No data available to display."  
-                   //},
-                   editable: 'popup',
-                   columns: [
-                       //{ command: "edit", title: " ", width: "150px" },
-                       { field: 'ItemCode',  title: 'Item Code', editable: false, type: 'int', width:140, locked: true, lockable: false },
-                       { field: 'Description',  title: 'Desc', type: 'int', width: 180 },                  
-                       { field: 'WarehouseCode',  title: 'Whs', type: 'int', width: 90 },  
-                       { field: 'Storage',  title: icsiStoragePrompt, type: 'int', width: 90, locked: false, lockable: false, hidden: storagehidden },  
-                       { field: 'Substorage',  title: icsiSubStoragePrompt, type: 'int', width: 90, locked: false, lockable: false, hidden: substoragehidden },
-                       { field: 'Identifier',  title: icsiIdentLabel, type: 'int', width: 110 },
-                       { field: 'SubIdentifier',  title: icsiSubIdentLabel, type: 'int', width: 130 },
-                       { field: 'cQuantityOnHand',  title: 'On Hand', type: 'int', width: 100 },
-                       { field: 'cQuantityAlloc',  title: 'Alloc', type: 'int', width: 90 },
-                       { field: 'cQuantityOnPPS',  title: 'PPS', type: 'int', width: 90 },  
-                       { field: 'cDespatchNoteQty',  title: 'Desp', type: 'int', width: 90 },                        
-                       { title: '&nbsp;', width: '100%' }
-                   ]
-                
-                
-                });  
 
-            }
-            
-            function afterShowformItemClassStockInfoResults () {              
-               resizeGrids();             
-            }
-            
-            function DestroyICSEGrid () {  
-                $("#grid").empty(); // empty the Grid content (inner HTML)                 
-            }
-            
-            function getICSIItemClassDetails() {
-                      
-                $.ajax({
-                  method: "POST",                               
-                    url: server_path + service_path + "getitemclassdetails", 
-                  //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getitemclassdetails",
-                  headers: {
-                    "accept": "application/json",
-                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
-                  }, 
-                  data: {
-                    "InEntity" : gcInEntity,
-                    "ItemCode": passitemcode,
-                    "WarehouseCode" : passwarehouse
-                  },                         
-                  success: function (result) {
-                    //  window.alert("Success!")
-                  },
-                  async: false,
-                  error: function(data) {
-                    //window.alert("Failed to reach server!")
-                  }  
-                })
-                .done(function(response) {                                         
-                    
-                    icsiItemClass     = (response.ItemClassDet[0].ItemClass);
-                    icsiIdentLabel    = (response.ItemClassDet[0].IdentifierLabel);
-                    icsiSubIdentLabel = (response.ItemClassDet[0].SubIdentifierLabel);
-                    icsiValidItem     = (response.ItemClassDet[0].ValidItemCode);
-                    icsiValidItemMsg  = (response.ItemClassDet[0].ValidItemMsg);
-                                                            
-                });                 
-            }   
-            
-            function requiredICSIStorage () {
-                
-                $.ajax({
-                   method: "POST",                               
-                   //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/getstoragedetails", 
-                   //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getstoragedetails",
-                   url: server_path + service_path + "getstoragedetails", 
-                   headers: {
-                     "accept": "application/json",
-                     "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
-                   }, 
-                   data: {
-                     "WarehouseCode"  : passwarehouse
-                   },                         
-                   success: function (result) {
-                   },
-                   async: false,
-                   error: function(data) {
-                     window.alert("Failed to reach server!")
-                   }  
-                 })
-                 .done(function(response) {    
-                                         
-                     icsiStorageReq	       = (response.StorageDetails[0].StorageRequired);
-                     icsiSubStorageReq     = (response.StorageDetails[0].SubStorageRequired);  
-                     icsiStoragePrompt     = (response.StorageDetails[0].StorageLabel);
-                     icsiSubStoragePrompt  = (response.StorageDetails[0].SubStorageLabel);
-                                         
                 });
-            }            
-            
-            // MAIN funciton
-            $(function() {            
-                
+            }
 
-                
+            function afterShowformItemClassStockInfoResults() {
+                resizeGrids();
+            }
+
+            function DestroyICSEGrid() {
+                $("#grid").empty(); // empty the Grid content (inner HTML)
+            }
+
+            function getICSIItemClassDetails() {
+
+                $.ajax({
+                    method: "POST",
+                    url: server_path + service_path + "getitemclassdetails",
+                    //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getitemclassdetails",
+                    headers: {
+                        "accept": "application/json",
+                        "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                    },
+                    data: {
+                        "InEntity": gcInEntity,
+                        "ItemCode": passitemcode,
+                        "WarehouseCode": passwarehouse
+                    },
+                    success: function (result) {
+                        //  window.alert("Success!")
+                    },
+                    async: false,
+                    error: function (data) {
+                        //window.alert("Failed to reach server!")
+                    }
+                })
+                    .done(function (response) {
+
+                        icsiItemClass = (response.ItemClassDet[0].ItemClass);
+                        icsiIdentLabel = (response.ItemClassDet[0].IdentifierLabel);
+                        icsiSubIdentLabel = (response.ItemClassDet[0].SubIdentifierLabel);
+                        icsiValidItem = (response.ItemClassDet[0].ValidItemCode);
+                        icsiValidItemMsg = (response.ItemClassDet[0].ValidItemMsg);
+
+                    });
+            }
+
+            function requiredICSIStorage() {
+
+                $.ajax({
+                    method: "POST",
+                    //url: "http://spectre.int.syscom.plc.uk:8980/test1/rest/test1/getstoragedetails",
+                    //url: "http://MCJS-HPERPAPP1.net.JohnLewis.co.uk:8980/mobilerest/rest/mobilerest/getstoragedetails",
+                    url: server_path + service_path + "getstoragedetails",
+                    headers: {
+                        "accept": "application/json",
+                        "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                    },
+                    data: {
+                        "WarehouseCode": passwarehouse
+                    },
+                    success: function (result) {
+                    },
+                    async: false,
+                    error: function (data) {
+                        window.alert("Failed to reach server!")
+                    }
+                })
+                    .done(function (response) {
+
+                        icsiStorageReq = (response.StorageDetails[0].StorageRequired);
+                        icsiSubStorageReq = (response.StorageDetails[0].SubStorageRequired);
+                        icsiStoragePrompt = (response.StorageDetails[0].StorageLabel);
+                        icsiSubStoragePrompt = (response.StorageDetails[0].SubStorageLabel);
+
+                    });
+            }
+
+            // MAIN funciton
+            $(function () {
+
+
                 //function to change grid size depending on orientation
                 function resizeGrids() {
                     var windowHeight = $(window).height();
                     //var newHeight = (windowHeight * 3) / 2;
                     var newHeight = (windowHeight - 300);
-                    var resizables = $(".adaptive-grid-wrapper, .adaptive-grid-wrapper > .km-pane-wrapper, .k-grid");                                 
-                    
+                    var resizables = $(".adaptive-grid-wrapper, .adaptive-grid-wrapper > .km-pane-wrapper, .k-grid");
+
                     resizables.height(newHeight);
                     $("#grid").data("kendoGrid").resize();
                 }
-                
-            });
 
+            });
             // funciton to display message in grid when no records found
             function DisplayNoResultsFound(grid) {
                 // Get the number of Columns in the grid
                 var dataSource = grid.data("kendoGrid").dataSource;
                 var colCount = grid.find('.k-grid-header colgroup > col').length;
-
                 // If there are no results display info to user
                 if (dataSource._view.length == 0) {
                     grid.find('.k-grid-content tbody')
                         .append('<tr class="kendo-data-row"><td colspan="' + colCount + '" style="text-align:center"><b>No Results Found! Please refine your search.</b></td></tr>');
                 }
-
                 // Get visible row count
                 var rowCount = grid.find('.k-grid-content tbody tr').length;
-
                 // If the row count is less that the page size add in the number of missing rows
                 if (rowCount < dataSource._take) {
                     var addRows = dataSource._take - rowCount;
@@ -271,31 +265,25 @@
                     }
                 }
             }
-            
+
             //function to change grid size depending on orientation
             function resizeGrids() {
-                var windowHeight = $(window).height();
+                /*var windowHeight = $(window).height();
                 var newHeight = (windowHeight - $("p").first().outerHeight() * 3) / 2;
-                var resizables = $(".adaptive-grid-wrapper, .adaptive-grid-wrapper > .km-pane-wrapper, .k-grid");                                 
-
+                var resizables = $(".adaptive-grid-wrapper, .adaptive-grid-wrapper > .km-pane-wrapper, .k-grid");
                 resizables.height(newHeight);
-
-                $("#grid").data("kendoGrid").resize();
-
+                $("#grid").data("kendoGrid").resize();*/
             }
-             
-            $(window).on("orientationchange",function(){
-                
+
+            $(window).on("orientationchange", function () {
+
                 resizeGrids();
-                
+
             });
-            
-      </script>
-      <!-- END_CUSTOM_CODE_formItemClassStockInfoResultsModel -->
+
+        </script>
+        <!-- END_CUSTOM_CODE_formItemClassStockInfoResultsModel -->
     </div>
     <!-- START_CUSTOM_CODE_formItemClassStockInfoResults -->
-
     <!-- END_CUSTOM_CODE_formItemClassStockInfoResults -->
 </div>
-
-
